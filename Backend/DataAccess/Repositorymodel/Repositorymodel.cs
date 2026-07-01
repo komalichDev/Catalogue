@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Backend.DataAccess.Repositorymodel;
 
-namespace Shared.Models;
-
-public struct Product
+public struct Repositorymodel
 {
     public int Id { get; set; }
 

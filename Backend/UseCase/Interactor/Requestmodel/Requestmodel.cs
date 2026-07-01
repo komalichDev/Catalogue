@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Backend.UseCase.Interactor.Requestmodel;
 
-namespace Shared.Models;
-
-public struct Product
+public struct Requestmodel
 {
     public int Id { get; set; }
 
