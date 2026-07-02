@@ -2,8 +2,9 @@
 
 public enum Requests
 {
-    Get,
-    Create,
-    Update,
-    Delete,
+    GetAllElements,
+    GetElement,
+    CreateElement,
+    UpdateElement,
+    DeleteElement,
 }

@@ -2,5 +2,5 @@
 
 public interface IInteractor
 {
-    public Task<Responsemodel.Responsemodel> Execute(Requests.Requests request, Requestmodel.Requestmodel model);
+    public Responsemodel.Responsemodel Execute(Requests.Requests request, Requestmodel.Requestmodel model);
 }

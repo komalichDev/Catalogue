@@ -1,6 +1,6 @@
-﻿namespace Backend.UseCase.Interactor.Responsemodel;
+﻿namespace Backend.Entity;
 
-public struct Description
+public class Description
 {
     public int Id { get; set; }
 
