@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="UseCase\Interactor\IRequestHandler.cs" />
+    <None Include="UseCase\Interactor\IInteractor.cs" />
   </ItemGroup>
 
   <ItemGroup>

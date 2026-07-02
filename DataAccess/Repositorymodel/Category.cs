@@ -1,4 +1,4 @@
-﻿namespace Backend.DataAccess.Repositorymodel;
+﻿namespace DataAccess.Repositorymodel;
 
 public struct Category
 {

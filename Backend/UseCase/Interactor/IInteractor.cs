@@ -1,6 +1,6 @@
 ﻿namespace Backend.UseCase.Interactor;
 
-public interface IRequestHandler
+public interface IInteractor
 {
     public Task<Responsemodel.Responsemodel> Execute(Requests.Requests request, Requestmodel.Requestmodel model);
 }
