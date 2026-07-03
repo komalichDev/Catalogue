@@ -18,17 +18,14 @@ public class ProductController : ControllerBase
 
     private IProductConverter _productConverter;
 
-    private IRequestmodelConverter _requestmodelConverter;
-
-    public ProductController(IInteractor interactor, IProductConverter productConverter, IRequestmodelConverter requestmodelConverter)
+    public ProductController(IInteractor interactor, IProductConverter productConverter)
     {
         _interactor = interactor;
         _productConverter = productConverter;
-        _requestmodelConverter = requestmodelConverter;
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Product>>> GetProduct()
+    public async Task<ActionResult<List<Product>>> GetProducts()
     {
         var data = default(Requestmodel);
         var result = _interactor.Execute(Requests.GetAllElements, data);
@@ -41,21 +38,27 @@ public class ProductController : ControllerBase
         return Ok(_productConverter.Convert(result));
     }
 
+    //[HttpGet]
+    //public async Task<ActionResult<List<Product>>> GetProducts(Product product)
+    //{
+    //    // ToDo: Logik einfügen
+    //}
+
     [HttpPost]
     public async void CreateElement(Product product)
     {
-        var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
+        //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
     }
 
     [HttpPut]
     public async void UpdateElement(Product product)
     {
-        var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
+        //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
     }
 
     [HttpDelete]
     public async void DeleteElement(Product product)
     {
-        var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
+        //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
     }
 }
