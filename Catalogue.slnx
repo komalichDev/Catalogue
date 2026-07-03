@@ -1,6 +1,8 @@
 <Solution>
   <Project Path="Backend/Backend.csproj" />
   <Project Path="Client/Client.csproj" />
-  <Project Path="DataAccess/DatabaseAccess.csproj" Id="a961b8da-8bab-4a39-9548-13ed8640746b" />
+  <Project Path="DataAccess/DatabaseAccess.csproj" Id="a961b8da-8bab-4a39-9548-13ed8640746b">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
   <Project Path="Shared/Shared.csproj" />
 </Solution>
