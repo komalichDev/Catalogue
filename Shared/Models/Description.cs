@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Shared.Models;
 
-namespace Shared.Models;
-
-public struct Description
-{
-    public string ShortDescription { get; set; }
-
-    public string LongDescription { get; set; }
-
-    public int Weight { get; set; }
-}
+public record Description(
+    int Id,
+    string ShortDescription,
+    string LongDescription,
+    int Weight);

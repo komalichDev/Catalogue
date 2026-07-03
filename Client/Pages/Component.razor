@@ -1,1 +1,18 @@
-﻿<span>Test</span>
+﻿@inject HttpClient Http
+@using Shared.Models;
+
+<h3 id="titel">Unsere Produkte</h3>
+
+@if (_produktListe == null) {
+    <p><em>Daten werden vom Server geladen... Bitte warten.</em></p>
+} else {
+    <div class="produkt-grid">
+        @foreach (var produkt in _produktListe) {
+            <div class="produkt-karte">
+                <h4>@produkt.Name</h4>
+                <p>Preis: @produkt.Price CHF</p>
+                <p>@produkt.Description.ShortDescription</p>
+            </div>
+        }
+    </div>
+}

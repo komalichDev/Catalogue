@@ -1,4 +1,4 @@
-﻿namespace Shared.Models;
+﻿namespace DatabaseAccess.Repositorymodel;
 
 public record Category(
     int Id,

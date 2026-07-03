@@ -1,4 +1,4 @@
-﻿namespace Shared.Models;
+﻿namespace Backend.Entity;
 
 public record Category(
     int Id,
