@@ -1,6 +1,6 @@
-﻿namespace Backend.Entity;
+﻿namespace Shared.Models;
 
-public record Product(
+public record ProductDto(
     int Id,
     string Name,
     double Price,

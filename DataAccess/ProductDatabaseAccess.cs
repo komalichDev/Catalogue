@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
-using DataAccess.Repositorymodel;
+using DatabaseAccess.Repositorymodel;
 using MySqlConnector;
 
-namespace DataAccess;
+namespace DatabaseAccess;
 
-public class Repository : IRepository
+public class ProductDatabaseAccess : IProductDatabaseAccess
 {
     private string Server = "127.0.0.1";
     private string Port = "3307";
@@ -17,7 +17,7 @@ public class Repository : IRepository
     private MySqlConnection _connection;
 
 
-    public Repository()
+    public ProductDatabaseAccess()
     {
         try {
             string connectionString = $"Server={Server};Port={Port};Database={DatabaseName};Uid={User};Pwd={Password};";
@@ -29,9 +29,9 @@ public class Repository : IRepository
 
     }
 
-    public async Task<Repositorymodel.Repositorymodel> GetAllProducts()
+    public async Task<Repositorymodel.ProductRepositoryModel> GetAllProducts()
     {
-        var productsList = new Repositorymodel.Repositorymodel();
+        var productsList = new Repositorymodel.ProductRepositoryModel();
         productsList.Products = new List<Repositorymodel.Product>();
 
         string query = @"
@@ -60,28 +60,24 @@ public class Repository : IRepository
 
             while (await reader.ReadAsync()) {
 
-                var category = new Category
-                {
-                    Id = reader.GetInt32("CategoryId"),
-                    Name = reader.GetString("CategoryName")
-                };
-
-                var description = new Description
-                {
-                    Id = reader.GetInt32("DescriptionId"),
-                    ShortText = reader.GetString("ShortSummary"),
-                };
-
                 var product = new Repositorymodel.Product
-                {
-                    Id = reader.GetInt32("ProductId"),
-                    Name = reader.GetString("ProductName"),
+                (
+                    reader.GetInt32("ProductId"),
+                    reader.GetString("ProductName"),
 
-                    Price = reader.GetDouble("Price"),
+                    reader.GetDouble("Price"),
 
-                    Category = category,
-                    Description = description
-                };
+                    new Repositorymodel.Description(
+                        reader.GetInt32("DescriptionId"),
+                        reader.GetString("ShortSummary"),
+                        "",
+                        0),
+
+                    new Repositorymodel.Category(
+                        reader.GetInt32("CategoryId"),
+                        reader.GetString("CategoryName"))
+
+                );
 
                 productsList.Products.Add(product);
             }

@@ -1,20 +1,15 @@
-using Backend.Adapter.Converter;
-using Backend.UseCase.Handler;
-using Backend.UseCase.Handler.Converter;
+using Backend.Repository;
 using Backend.UseCase.Interactor;
-using DataAccess;
+using DatabaseAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<IInteractor, Interactor>();
-builder.Services.AddScoped<IHandler, Handler>();
+builder.Services.AddScoped<IProductGateway, ProductRepository>();
 
-builder.Services.AddScoped<IResponsemodelConverter, ResponsemodelConverter>();
-builder.Services.AddScoped<IProductConverter, ProductConverter>();
-
-builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddScoped<IProductDatabaseAccess, ProductDatabaseAccess>();
 
 builder.Services.AddCors(options =>
 {

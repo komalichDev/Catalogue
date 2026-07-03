@@ -1,16 +1,20 @@
-﻿using Backend.UseCase.Handler;
+﻿using Backend.UseCase.Interactor.Converter;
+using Shared.Models;
 
 namespace Backend.UseCase.Interactor;
 
 public class Interactor : IInteractor
 {
-    private IHandler _handler;
+    private IProductGateway _gateway;
 
-    public Interactor(IHandler handler)
+    public Interactor(IProductGateway gateway)
     {
-        _handler = handler;
+        _gateway = gateway;
     }
 
-    public Responsemodel.Responsemodel Execute(Requests.Requests request, Requestmodel.Requestmodel model)
-        => _handler.Execute(request, model);
+    public List<ProductDto> GetAllProducts()
+    {
+        var result = _gateway.GetAllProducts();
+        return ProductDtoConverter.Convert(result);
+    }
 }

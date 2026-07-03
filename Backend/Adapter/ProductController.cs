@@ -1,12 +1,6 @@
-﻿using Backend.Adapter.Converter;
-
-using Backend.UseCase.Interactor;
-
-using Backend.UseCase.Interactor.Requestmodel;
-
-using Backend.UseCase.Interactor.Requests;
-
+﻿using Backend.UseCase.Interactor;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Models;
 
 namespace Backend.Adapter;
 
@@ -16,26 +10,22 @@ public class ProductController : ControllerBase
 {
     private IInteractor _interactor;
 
-    private IProductConverter _productConverter;
-
-    public ProductController(IInteractor interactor, IProductConverter productConverter)
+    public ProductController(IInteractor interactor)
     {
         _interactor = interactor;
-        _productConverter = productConverter;
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Product>>> GetProducts()
+    public async Task<ActionResult<List<ProductDto>>> GetProducts()
     {
-        var data = default(Requestmodel);
-        var result = _interactor.Execute(Requests.GetAllElements, data);
+        var result = _interactor.GetAllProducts();
 
-        if (result.Products.Count <= 0)
+        if (result.Count <= 0)
         {
             return NotFound();
         }
 
-        return Ok(_productConverter.Convert(result));
+        return Ok(result);
     }
 
     //[HttpGet]
@@ -45,19 +35,19 @@ public class ProductController : ControllerBase
     //}
 
     [HttpPost]
-    public async void CreateElement(Product product)
+    public async void CreateElement(Entity.Product product)
     {
         //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
     }
 
     [HttpPut]
-    public async void UpdateElement(Product product)
+    public async void UpdateElement(Entity.Product product)
     {
         //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
     }
 
     [HttpDelete]
-    public async void DeleteElement(Product product)
+    public async void DeleteElement(Entity.Product product)
     {
         //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
     }

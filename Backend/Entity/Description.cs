@@ -1,12 +1,7 @@
 ﻿namespace Backend.Entity;
 
-public class Description
-{
-    public int Id { get; set; }
-
-    public string? ShortText { get; set; }
-
-    public string? LongText { get; set; }
-
-    public int Weight { get; set; }
-}
+public record Description(
+    int Id,
+    string ShortText,
+    string LongText,
+    int Weight);

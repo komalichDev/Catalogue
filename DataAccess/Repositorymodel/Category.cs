@@ -1,8 +1,5 @@
-﻿namespace DataAccess.Repositorymodel;
+﻿namespace DatabaseAccess.Repositorymodel;
 
-public struct Category
-{
-    public int Id { get; set; }
-
-    public string Name { get; set; }
-}
+public record Category(
+    int Id,
+    string Name);

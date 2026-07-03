@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 
-namespace DataAccess.Repositorymodel;
+namespace DatabaseAccess.Repositorymodel;
 
-public struct Repositorymodel
+public struct ProductRepositoryModel
 {
     public List<Product> Products { get; set; }
 }
