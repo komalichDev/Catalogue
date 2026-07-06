@@ -3,6 +3,4 @@
 namespace DatabaseAccess.Entity;
 
 [ValueObject<int>]
-public readonly partial struct CategoryId
-{
-}
+public readonly partial struct CategoryId;

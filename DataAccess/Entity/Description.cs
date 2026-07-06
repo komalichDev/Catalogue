@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace DatabaseAccess.Entity;
 
 [Table("descriptions")]
-public record Description
+public class Description
 {
     [Key]
     public DescriptionId Id { get; init; }
