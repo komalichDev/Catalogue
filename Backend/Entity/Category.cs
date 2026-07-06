@@ -1,5 +1,7 @@
-﻿namespace Backend.Entity;
+﻿using Common.Types;
+
+namespace Backend.Entity;
 
 public record Category(
-    int Id,
+    CategoryId Id,
     string Name);

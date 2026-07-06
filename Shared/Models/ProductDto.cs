@@ -1,8 +1,12 @@
-﻿namespace Shared.Models;
+﻿using Common.Types;
+
+namespace Shared.Models;
 
 public record ProductDto(
-    int Id,
+    ProductId Id,
     string Name,
     double Price,
-    Description Description,
-    Category Category);
+    DescriptionId DescriptionId,
+    Description? Description,
+    CategoryId CategoryId,
+    Category? Category);

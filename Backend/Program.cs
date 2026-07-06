@@ -1,10 +1,13 @@
 using Backend.Repository;
 using Backend.UseCase.Interactor;
+using Common.Config;
 using DatabaseAccess;
 using DatabaseAccess.Context;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+MapsterConfig.RegisterMappings();
 
 builder.Services.AddControllers();
 

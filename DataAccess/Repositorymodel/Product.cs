@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Common.Types;
 
 namespace DatabaseAccess.Repositorymodel;
 public record Product(
-    int Id, 
+    ProductId Id, 
     string Name, 
     double Price, 
-    Description Description, 
-    Category Category);
+    DescriptionId DescriptionId,
+    Description? Description,
+    CategoryId CategoryId,
+    Category? Category);

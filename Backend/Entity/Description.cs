@@ -1,7 +1,9 @@
-﻿namespace Backend.Entity;
+﻿using Common.Types;
+
+namespace Backend.Entity;
 
 public record Description(
-    int Id,
-    string ShortText,
-    string LongText,
-    int Weight);
+    DescriptionId Id,
+    string ShortSummary,
+    string DetailedText,
+    int WeightInGrams);

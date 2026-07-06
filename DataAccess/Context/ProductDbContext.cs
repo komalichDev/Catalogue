@@ -1,4 +1,5 @@
-﻿using DatabaseAccess.Entity;
+﻿using Common.Types;
+using DatabaseAccess.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseAccess.Context;

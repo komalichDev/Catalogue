@@ -1,7 +1,9 @@
-﻿namespace Shared.Models;
+﻿using Common.Types;
+
+namespace Shared.Models;
 
 public record Description(
-    int Id,
-    string ShortDescription,
-    string LongDescription,
-    int Weight);
+    DescriptionId Id,
+    string ShortSummary,
+    string DetailedText,
+    int WeightInGrams);
