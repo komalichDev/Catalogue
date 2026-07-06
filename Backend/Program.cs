@@ -1,6 +1,8 @@
 using Backend.Repository;
 using Backend.UseCase.Interactor;
 using DatabaseAccess;
+using DatabaseAccess.Context;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,9 @@ builder.Services.AddScoped<IInteractor, Interactor>();
 builder.Services.AddScoped<IProductGateway, ProductRepository>();
 
 builder.Services.AddScoped<IProductDatabaseAccess, ProductDatabaseAccess>();
+string connectionString = "Server=127.0.0.1;Port=3307;Database=product;Uid=root;Pwd=1234;";
+builder.Services.AddDbContext<IProductDbContext, ProductDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddCors(options =>
 {

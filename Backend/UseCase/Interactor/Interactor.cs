@@ -12,9 +12,9 @@ public class Interactor : IInteractor
         _gateway = gateway;
     }
 
-    public List<ProductDto> GetAllProducts()
+    public async Task<List<ProductDto>> GetAllProducts()
     {
-        var result = _gateway.GetAllProducts();
+        var result = await _gateway.GetAllProducts();
         return ProductDtoConverter.Convert(result);
     }
 }

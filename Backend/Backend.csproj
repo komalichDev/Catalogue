@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Messerli.CodeStyle" Version="2.3.1" />
+    <PackageReference Include="Vogen" Version="8.0.5" />
   </ItemGroup>
 
   <PropertyGroup>

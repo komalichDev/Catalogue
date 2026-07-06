@@ -15,6 +15,9 @@ public class ProductRepository : IProductGateway
         _databaseAccess = databaseAccess;
     }
 
-    public List<Product> GetAllProducts()
-        => ProductConverter.Convert(_databaseAccess.GetAllProducts().Result);
+    public async Task<List<Product>> GetAllProducts()
+    {
+        var dbResult = await _databaseAccess.GetAllProducts();
+        return ProductConverter.Convert(dbResult);
+    }
 }

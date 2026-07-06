@@ -18,7 +18,7 @@ public class ProductController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<ProductDto>>> GetProducts()
     {
-        var result = _interactor.GetAllProducts();
+        var result = await _interactor.GetAllProducts();
 
         if (result.Count <= 0)
         {
@@ -35,7 +35,7 @@ public class ProductController : ControllerBase
     //}
 
     [HttpPost]
-    public async void CreateElement(Entity.Product product)
+    public async void CreateElement(ProductDto product)
     {
         //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
     }
