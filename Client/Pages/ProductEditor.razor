@@ -1,4 +1,17 @@
-﻿<h3>ProductEditor</h3>
+﻿<h1>ProductEditor</h1>
+
+<div id="ProductField">
+    <input id="ProductName" type="text" name="name" value="" />
+    <input id="ProductPrize" type="number" name="name" value="" />
+</div>
+
+<CategorySelecter />
+
+<button id = "ChangeCategoryViewButton" @onclick="ChangeCategoryView">Kategorie erstellen</button>
+
+<button id= "SaveButton">Speichern</button>
+
+<button id="CancelButton">Abbrechen</button>
 
 @code {
 

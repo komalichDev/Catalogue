@@ -1,6 +1,6 @@
 ﻿using Common.Types;
 
-namespace DatabaseAccess.Repositorymodel;
+namespace DatabaseAccess.RepositoryModel;
 
 public record Description(
     DescriptionId Id,

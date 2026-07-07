@@ -24,4 +24,21 @@ public class Interactor : IInteractor
         var products = result.Data ?? new List<Entity.Product>();
         return QueryResult<List<ProductDto>>.Success(ProductDtoConverter.Convert(products));
     }
+
+    public async Task<QueryResult<ProductDto>> GetProductById(ProductId id)
+    {
+        var result = await _gateway.GetOneProduct(id);
+        if (!result.IsSuccess)
+        {
+            return QueryResult<ProductDto>.Failure(result.ErrorCode);
+        }
+
+        var product = result.Data;
+        if (product == null)
+        {
+            return QueryResult<ProductDto>.Failure(result.ErrorCode);
+        }
+
+        return QueryResult<ProductDto>.Success(ProductDtoConverter.Convert(product));
+    }
 }

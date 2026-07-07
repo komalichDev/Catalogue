@@ -3,7 +3,7 @@ using Common.Types;
 using DatabaseAccess.Context;
 using DatabaseAccess.Converter;
 using DatabaseAccess.Entity;
-using DatabaseAccess.Repositorymodel;
+using DatabaseAccess.RepositoryModel;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +13,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
 {
     private readonly IProductDbContext _context = context;
 
-    public async Task<QueryResult<Repositorymodel.ProductRepositoryModel>> GetAllProducts()
+    public async Task<QueryResult<RepositoryModel.ProductRepositoryModel>> GetAllProducts()
     {
         try {
             var entities = await _context.Products
@@ -21,14 +21,14 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
                             .Include(p => p.Description)
                             .ToListAsync();
 
-            return QueryResult<Repositorymodel.ProductRepositoryModel>.Success(ProductRepositoryModelConverter.Convert(entities));
+            return QueryResult<RepositoryModel.ProductRepositoryModel>.Success(ProductRepositoryModelConverter.Convert(entities));
         } catch (Exception ex) {
             Console.WriteLine($"Fehler beim Abrufen der Produkte: {ex.Message}");
-            return QueryResult<Repositorymodel.ProductRepositoryModel>.Failure(ErrorCodes.FailedConnection);
+            return QueryResult<RepositoryModel.ProductRepositoryModel>.Failure(ErrorCodes.FailedConnection);
         }
     }
 
-    public async Task<QueryResult<Repositorymodel.Product>> GetProduct(ProductId id)
+    public async Task<QueryResult<RepositoryModel.Product>> GetProduct(ProductId id)
     {
         try {
             var entity = await _context.Products
@@ -36,16 +36,16 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
                             .Include(p => p.Description)
                             .FirstOrDefaultAsync(p => p.Id == id);
             if (entity == null) {
-                return QueryResult<Repositorymodel.Product>.Failure(ErrorCodes.NotFound);
+                return QueryResult<RepositoryModel.Product>.Failure(ErrorCodes.NotFound);
             }
-            return QueryResult<Repositorymodel.Product>.Success(ProductRepositoryModelConverter.Convert(entity));
+            return QueryResult<RepositoryModel.Product>.Success(ProductRepositoryModelConverter.Convert(entity));
         } catch (Exception ex) {
             Console.WriteLine($"Fehler beim Abrufen des Produkts: {ex.Message}");
-            return QueryResult<Repositorymodel.Product>.Failure(ErrorCodes.FailedConnection);
+            return QueryResult<RepositoryModel.Product>.Failure(ErrorCodes.FailedConnection);
         }
     }
 
-    public async Task<Result> CreateProduct(Repositorymodel.Product product)
+    public async Task<Result> CreateProduct(RepositoryModel.Product product)
     {
         try {
             var entity = ProductRepositoryModelConverter.Convert(product);
@@ -58,7 +58,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
         }
     }
 
-    public async Task<Result> CreateCategory(Repositorymodel.Category category)
+    public async Task<Result> CreateCategory(RepositoryModel.Category category)
     {
         try {
             var entity = ProductRepositoryModelConverter.Convert(category);
@@ -71,7 +71,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
         }
     }
 
-    public async Task<Result> CreateDescription(Repositorymodel.Description description)
+    public async Task<Result> CreateDescription(RepositoryModel.Description description)
     {
         try {
             var entity = ProductRepositoryModelConverter.Convert(description);
@@ -144,7 +144,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
         }
     }
 
-    public async Task<Result> UpdateProduct(Repositorymodel.Product product)
+    public async Task<Result> UpdateProduct(RepositoryModel.Product product)
     {
         var entity = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
 
@@ -165,7 +165,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
 
     }
 
-    public async Task<Result> UpdateCategory(Repositorymodel.Category category)
+    public async Task<Result> UpdateCategory(RepositoryModel.Category category)
     {
         var entity = await _context.Categories.FirstOrDefaultAsync(c => c.Id == category.Id);
 
@@ -184,7 +184,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
         }
     }
 
-    public async Task<Result> UpdateDescription(Repositorymodel.Description description)
+    public async Task<Result> UpdateDescription(RepositoryModel.Description description)
     {
         var entity = await _context.Descriptions.FirstOrDefaultAsync(d => d.Id == description.Id);
 

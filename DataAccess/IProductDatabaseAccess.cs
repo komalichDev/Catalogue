@@ -1,18 +1,18 @@
 ﻿using Common.Types;
-using DatabaseAccess.Repositorymodel;
+using DatabaseAccess.RepositoryModel;
 
 namespace DatabaseAccess;
 
 public interface IProductDatabaseAccess
 {
-    public Task<QueryResult<Repositorymodel.ProductRepositoryModel>> GetAllProducts();
-    public Task<QueryResult<Repositorymodel.Product>> GetProduct(ProductId id);
+    public Task<QueryResult<RepositoryModel.ProductRepositoryModel>> GetAllProducts();
+    public Task<QueryResult<RepositoryModel.Product>> GetProduct(ProductId id);
 
-    public Task<Result> CreateProduct(Repositorymodel.Product product);
+    public Task<Result> CreateProduct(RepositoryModel.Product product);
 
-    public Task<Result> CreateCategory(Repositorymodel.Category category);
+    public Task<Result> CreateCategory(RepositoryModel.Category category);
 
-    public Task<Result> CreateDescription(Repositorymodel.Description description);
+    public Task<Result> CreateDescription(RepositoryModel.Description description);
 
     public Task<Result> DeleteProduct(ProductId id);
 
@@ -20,9 +20,9 @@ public interface IProductDatabaseAccess
 
     public Task<Result> DeleteDescription(DescriptionId id);
 
-    public Task<Result> UpdateProduct(Repositorymodel.Product product);
+    public Task<Result> UpdateProduct(RepositoryModel.Product product);
 
-    public Task<Result> UpdateCategory(Repositorymodel.Category category);
+    public Task<Result> UpdateCategory(RepositoryModel.Category category);
 
-    public Task<Result> UpdateDescription(Repositorymodel.Description description);
+    public Task<Result> UpdateDescription(RepositoryModel.Description description);
 }
