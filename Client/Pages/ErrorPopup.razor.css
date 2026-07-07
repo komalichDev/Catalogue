@@ -1,0 +1,64 @@
+﻿.error-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.error-popup-box {
+    background-color: #fff0f0;
+    border: 3px solid #cc0000;
+    border-radius: 8px;
+    padding: 25px;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(204, 0, 0, 0.4);
+    animation: popIn 0.3s ease-out forwards;
+}
+
+.error-title {
+    color: #cc0000;
+    margin-top: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.error-message {
+    color: #333;
+    font-size: 1.1rem;
+    margin: 15px 0 25px 0;
+}
+
+.error-button {
+    background-color: #cc0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .error-button:hover {
+        background-color: #990000;
+    }
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

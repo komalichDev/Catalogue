@@ -9,5 +9,5 @@ public class Category
 {
     [Key]
     public CategoryId Id { get; init; }
-    public string Name { get; init; }
+    public required string Name { get; init; }
 }

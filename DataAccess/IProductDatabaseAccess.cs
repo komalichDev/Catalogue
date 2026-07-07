@@ -1,8 +1,9 @@
-﻿using DatabaseAccess.Repositorymodel;
+﻿using Common.Types;
+using DatabaseAccess.Repositorymodel;
 
 namespace DatabaseAccess;
 
 public interface IProductDatabaseAccess
 {
-    public Task<Repositorymodel.ProductRepositoryModel> GetAllProducts();
+    public Task<QueryResult<Repositorymodel.ProductRepositoryModel>> GetAllProducts();
 }

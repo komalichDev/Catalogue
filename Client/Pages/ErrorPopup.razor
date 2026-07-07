@@ -1,0 +1,9 @@
+﻿@if (IsVisible) {
+    <div class="error-popup-overlay">
+        <div class="error-popup-box">
+            <h3 class="error-title">⚠️ Achtung</h3>
+            <p class="error-message">@ErrorMessage</p>
+            <button class="error-button" @onclick="Close">Verstanden</button>
+        </div>
+    </div>
+}
