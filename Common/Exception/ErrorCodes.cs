@@ -6,5 +6,9 @@ public enum ErrorCodes
     EntityNotFound = 1002,
     NetworkError = 1003,
     FailedConnection = 1004,
+    NotFound = 1005,
+    DataCreationFailed = 1006,
+    DataUpdateFailed = 1007,
+    DataDeletionFailed = 1008,
     None = 0,
 }

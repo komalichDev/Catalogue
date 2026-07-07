@@ -16,5 +16,17 @@ namespace DatabaseAccess.Converter
 
             return repositoryModel.Products.Adapt<IEnumerable<Entity.Product>>();
         }
+
+        public static Entity.Product Convert(Repositorymodel.Product product)
+            => product.Adapt<Entity.Product>();
+
+        public static Entity.Category Convert(Repositorymodel.Category category)
+            => category.Adapt<Entity.Category>();
+
+        public static Entity.Description Convert(Repositorymodel.Description description)
+            => description.Adapt<Entity.Description>();
+
+        public static Repositorymodel.Product Convert(Entity.Product entity)
+            => entity.Adapt<Repositorymodel.Product>();
     }
 }
