@@ -9,7 +9,7 @@ public class Description
 {
     [Key]
     public DescriptionId Id { get; init; }
-    public string ShortSummary { get; init; }
-    public string DetailedText { get; init; }
+    public required string ShortSummary { get; init; }
+    public required string DetailedText { get; init; }
     public int WeightInGrams { get; init; }
 }

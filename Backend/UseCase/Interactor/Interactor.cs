@@ -1,4 +1,5 @@
 ﻿using Backend.UseCase.Interactor.Converter;
+using Common.Types;
 using Shared.Models;
 
 namespace Backend.UseCase.Interactor;
@@ -12,9 +13,15 @@ public class Interactor : IInteractor
         _gateway = gateway;
     }
 
-    public async Task<List<ProductDto>> GetAllProducts()
+    public async Task<QueryResult<List<ProductDto>>> GetAllProducts()
     {
         var result = await _gateway.GetAllProducts();
-        return ProductDtoConverter.Convert(result);
+        if (!result.IsSuccess)
+        {
+            return QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
+        }
+
+        var products = result.Data ?? new List<Entity.Product>();
+        return QueryResult<List<ProductDto>>.Success(ProductDtoConverter.Convert(products));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Backend.UseCase.Interactor;
+using Common.Types;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Models;
 
@@ -16,16 +17,15 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ProductDto>>> GetProducts()
+    public async Task<QueryResult<List<ProductDto>>> GetProducts()
     {
         var result = await _interactor.GetAllProducts();
-
-        if (result.Count <= 0)
+        if (!result.IsSuccess)
         {
-            return NotFound();
+            return QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
         }
 
-        return Ok(result);
+        return QueryResult<List<ProductDto>>.Success(result.Data ?? new List<ProductDto>());
     }
 
     //[HttpGet]
