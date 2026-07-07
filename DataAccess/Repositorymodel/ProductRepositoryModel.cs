@@ -2,7 +2,5 @@
 
 namespace DatabaseAccess.Repositorymodel;
 
-public struct ProductRepositoryModel
-{
-    public List<Product> Products { get; set; }
-}
+public record ProductRepositoryModel(
+    List<Product> Products);

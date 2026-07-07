@@ -11,9 +11,6 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
 
     public async Task<Repositorymodel.ProductRepositoryModel> GetAllProducts()
     {
-        var productsList = new ProductRepositoryModel();
-        productsList.Products = new List<Repositorymodel.Product>();
-
         try {
             var entities = await _context.Products
                             .Include(p => p.Category)

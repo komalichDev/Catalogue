@@ -1,5 +1,7 @@
-﻿namespace Shared.Models;
+﻿using Common.Types;
+
+namespace Shared.Models;
 
 public record Category(
-    int Id,
+    CategoryId Id,
     string Name);

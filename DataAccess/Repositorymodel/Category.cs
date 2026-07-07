@@ -1,5 +1,7 @@
-﻿namespace DatabaseAccess.Repositorymodel;
+﻿using Common.Types;
+
+namespace DatabaseAccess.Repositorymodel;
 
 public record Category(
-    int Id,
+    CategoryId Id,
     string Name);

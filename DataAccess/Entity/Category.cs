@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Common.Types;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DatabaseAccess.Entity;
 
 [Table("categories")]
-public record Category
+public class Category
 {
     [Key]
     public CategoryId Id { get; init; }

@@ -1,35 +1,20 @@
 ﻿using DatabaseAccess.Repositorymodel;
+using Mapster;
 
 namespace DatabaseAccess.Converter
 {
     public class ProductRepositoryModelConverter
     {
         public static ProductRepositoryModel Convert(IEnumerable<Entity.Product> entities)
+            => new ProductRepositoryModel(entities.Adapt<List<Repositorymodel.Product>>());
+
+        public static IEnumerable<Entity.Product> Convert(ProductRepositoryModel repositoryModel)
         {
-            var resultModel = new ProductRepositoryModel();
-            resultModel.Products = new List<Repositorymodel.Product>();
-
-            foreach (var entity in entities) {
-                var product = new Repositorymodel.Product(
-                    entity.Id.Value,
-                    entity.Name,
-                    entity.Price,
-                    new Repositorymodel.Description(
-                        entity.Description.Id.Value,
-                        entity.Description.ShortSummary,
-                        entity.Description.DetailedText,
-                        entity.Description.WeightInGrams
-                    ),
-                    new Repositorymodel.Category(
-                        entity.Category.Id.Value,
-                        entity.Category.Name
-                    )
-                );
-
-                resultModel.Products.Add(product);
+            if (repositoryModel?.Products == null) {
+                return new List<Entity.Product>();
             }
 
-            return resultModel;
+            return repositoryModel.Products.Adapt<IEnumerable<Entity.Product>>();
         }
     }
 }
