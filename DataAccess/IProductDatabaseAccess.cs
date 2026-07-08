@@ -8,6 +8,14 @@ public interface IProductDatabaseAccess
     public Task<QueryResult<RepositoryModel.ProductRepositoryModel>> GetAllProducts();
     public Task<QueryResult<RepositoryModel.Product>> GetProduct(ProductId id);
 
+    public Task<QueryResult<List<RepositoryModel.Category>>> GetAllCategories();
+
+    public Task<QueryResult<RepositoryModel.Category>> GetCategory(CategoryId id);
+
+    public Task<QueryResult<List<RepositoryModel.Description>>> GetAllDescriptions();
+
+    public Task<QueryResult<RepositoryModel.Description>> GetDescription(DescriptionId id);
+
     public Task<Result> CreateProduct(RepositoryModel.Product product);
 
     public Task<Result> CreateCategory(RepositoryModel.Category category);

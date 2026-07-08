@@ -1,7 +1,6 @@
 ﻿using Backend.Entity;
 using Backend.Repository.Converter;
 using Backend.UseCase.Interactor;
-using Common.Exception;
 using Common.Types;
 using DatabaseAccess;
 
@@ -12,35 +11,61 @@ public class ProductRepository : IProductGateway
     private IProductDatabaseAccess _databaseAccess;
 
     public ProductRepository(IProductDatabaseAccess databaseAccess)
-    {
-        _databaseAccess = databaseAccess;
-    }
+        => _databaseAccess = databaseAccess;
+
+    public async Task<QueryResult<List<Category>>> GetAllCategories()
+            => await ExecuteQueryAsync(
+                () => _databaseAccess.GetAllCategories(),
+                data => ProductConverter.Convert(data),
+                new List<DatabaseAccess.RepositoryModel.Category>());
+
+    public async Task<QueryResult<List<Description>>> GetAllDescriptions()
+        => await ExecuteQueryAsync(
+            () => _databaseAccess.GetAllDescriptions(),
+            data => ProductConverter.Convert(data),
+            new List<DatabaseAccess.RepositoryModel.Description>());
 
     public async Task<QueryResult<List<Product>>> GetAllProducts()
-    {
-        var dbResult = await _databaseAccess.GetAllProducts();
-        if (!dbResult.IsSuccess)
-        {
-            return (QueryResult<List<Product>>)Result.Failure(dbResult.ErrorCode);
-        }
+        => await ExecuteQueryAsync(
+            () => _databaseAccess.GetAllProducts(),
+            data => ProductConverter.Convert(data),
+            new DatabaseAccess.RepositoryModel.ProductRepositoryModel(new List<DatabaseAccess.RepositoryModel.Product>()));
 
-        var result = dbResult.Data ?? new DatabaseAccess.RepositoryModel.ProductRepositoryModel(new List<DatabaseAccess.RepositoryModel.Product>());
-        return QueryResult<List<Product>>.Success(ProductConverter.Convert(result));
-    }
+    public async Task<QueryResult<Category>> GetCategoryById(CategoryId id)
+        => await ExecuteQueryAsync(
+            () => _databaseAccess.GetCategory(id),
+            data => ProductConverter.Convert(data));
+
+    public async Task<QueryResult<Description>> GetDescriptionById(DescriptionId id)
+        => await ExecuteQueryAsync(
+            () => _databaseAccess.GetDescription(id),
+            data => ProductConverter.Convert(data));
 
     public async Task<QueryResult<Product>> GetProductById(ProductId id)
+        => await ExecuteQueryAsync(
+            () => _databaseAccess.GetProduct(id),
+            data => ProductConverter.Convert(data));
+
+    private static async Task<QueryResult<TResult>> ExecuteQueryAsync<TData, TResult>(
+        Func<Task<QueryResult<TData>>> dbCall,
+        Func<TData, TResult> converter,
+        TData? fallbackData = null)
+        where TResult : class
+        where TData : class
     {
-        var dbResult = await _databaseAccess.GetProduct(id);
+        var dbResult = await dbCall();
+
         if (!dbResult.IsSuccess)
         {
-            return (QueryResult<Product>)Result.Failure(dbResult.ErrorCode);
+            return (QueryResult<TResult>)Result.Failure(dbResult.ErrorCode);
         }
 
-        if (dbResult.Data is null)
+        var data = dbResult.Data ?? fallbackData;
+        if (data == null)
         {
-            return (QueryResult<Product>)Result.Failure(dbResult.ErrorCode);
+            return (QueryResult<TResult>)Result.Failure(dbResult.ErrorCode);
         }
 
-        return QueryResult<Product>.Success(ProductConverter.Convert(dbResult.Data));
+        return QueryResult<TResult>.Success(converter(data));
     }
 }

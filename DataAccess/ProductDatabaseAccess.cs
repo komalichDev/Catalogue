@@ -25,6 +25,15 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
                 "Fehler beim Abrufen der Produkte"
             );
 
+    public async Task<QueryResult<List<RepositoryModel.Category>>> GetAllCategories() 
+        => await QueryWrapper(
+                    () => _context.Categories
+                            .ToListAsync(),
+                    entities => ProductRepositoryModelConverter.Convert(entities),
+                    ErrorCodes.FailedConnection,
+                    "Fehler beim Abrufen der Produkte"
+        );
+
     public async Task<QueryResult<RepositoryModel.Product>> GetProduct(ProductId id)
         => await QueryWrapper(
             () => _context.Products
@@ -149,4 +158,31 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
             return (QueryResult<TResult>)Result.Failure(errorCode);
         }
     }
+
+    public async Task<QueryResult<RepositoryModel.Category>> GetCategory(CategoryId id)
+        => await QueryWrapper(
+            () => _context.Categories
+                    .FirstOrDefaultAsync(p => p.Id == id),
+            entity => ProductRepositoryModelConverter.Convert(entity),
+            ErrorCodes.FailedConnection,
+            "Fehler beim Abrufen des Produkts"
+        );
+
+    public async Task<QueryResult<List<RepositoryModel.Description>>> GetAllDescriptions()
+        => await QueryWrapper(
+                    () => _context.Descriptions
+                            .ToListAsync(),
+                    entities => ProductRepositoryModelConverter.Convert(entities),
+                    ErrorCodes.FailedConnection,
+                    "Fehler beim Abrufen der Produkte"
+        );
+
+    public async Task<QueryResult<RepositoryModel.Description>> GetDescription(DescriptionId id)
+        => await QueryWrapper(
+            () => _context.Descriptions
+                    .FirstOrDefaultAsync(p => p.Id == id),
+            entity => ProductRepositoryModelConverter.Convert(entity),
+            ErrorCodes.FailedConnection,
+            "Fehler beim Abrufen des Produkts"
+        );
 }

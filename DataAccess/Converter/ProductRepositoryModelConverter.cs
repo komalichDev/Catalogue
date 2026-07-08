@@ -28,5 +28,17 @@ namespace DatabaseAccess.Converter
 
         public static RepositoryModel.Product Convert(Entity.Product entity)
             => entity.Adapt<RepositoryModel.Product>();
+
+        public static RepositoryModel.Category Convert(Entity.Category entity)
+            => entity.Adapt<RepositoryModel.Category>();
+
+        public static List<RepositoryModel.Category> Convert(List<Entity.Category> entity)
+            => entity.Adapt<List<RepositoryModel.Category>>();
+
+        public static RepositoryModel.Description Convert(Entity.Description entity)
+            => entity.Adapt<RepositoryModel.Description>();
+
+        public static List<RepositoryModel.Description> Convert(List<Entity.Description> entity)
+            => entity.Adapt<List<RepositoryModel.Description>>();
     }
 }

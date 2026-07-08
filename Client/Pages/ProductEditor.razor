@@ -1,11 +1,13 @@
-﻿<h1>ProductEditor</h1>
+﻿@page "/Editor"
+
+<h1>ProductEditor</h1>
 
 <div id="ProductField">
-    <input id="ProductName" type="text" name="name" value="" />
-    <input id="ProductPrize" type="number" name="name" value="" />
+    <input id="ProductName" type="text" name="name" value="@Product.Name" />
+    <input id="ProductPrize" type="number" name="name" value="@Product.Price" />
 </div>
 
-<CategorySelecter />
+<CategorySelecter/>
 
 <button id = "ChangeCategoryViewButton" @onclick="ChangeCategoryView">Kategorie erstellen</button>
 

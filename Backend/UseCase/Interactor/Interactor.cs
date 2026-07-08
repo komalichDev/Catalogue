@@ -9,36 +9,59 @@ public class Interactor : IInteractor
     private IProductGateway _gateway;
 
     public Interactor(IProductGateway gateway)
-    {
-        _gateway = gateway;
-    }
+        => _gateway = gateway;
 
     public async Task<QueryResult<List<ProductDto>>> GetAllProducts()
-    {
-        var result = await _gateway.GetAllProducts();
-        if (!result.IsSuccess)
-        {
-            return (QueryResult<List<ProductDto>>)QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
-        }
-
-        var products = result.Data ?? new List<Entity.Product>();
-        return QueryResult<List<ProductDto>>.Success(ProductDtoConverter.Convert(products));
-    }
+            => await ExecuteQueryAsync(
+                () => _gateway.GetAllProducts(),
+                data => ProductDtoConverter.Convert(data),
+                new List<Entity.Product>());
 
     public async Task<QueryResult<ProductDto>> GetProductById(ProductId id)
+        => await ExecuteQueryAsync(
+            () => _gateway.GetProductById(id),
+            data => ProductDtoConverter.Convert(data));
+
+    public async Task<QueryResult<Description>> GetDescriptionById(DescriptionId id)
+        => await ExecuteQueryAsync(
+            () => _gateway.GetDescriptionById(id),
+            data => ProductDtoConverter.Convert(data));
+
+    public async Task<QueryResult<Category>> GetCategoryById(CategoryId id)
+        => await ExecuteQueryAsync(
+            () => _gateway.GetCategoryById(id),
+            data => ProductDtoConverter.Convert(data));
+
+    public async Task<QueryResult<List<Category>>> GetAllCategories()
+        => await ExecuteQueryAsync(
+            () => _gateway.GetAllCategories(),
+            data => ProductDtoConverter.Convert(data));
+
+    public async Task<QueryResult<List<Description>>> GetAllDescriptions()
+        => await ExecuteQueryAsync(
+            () => _gateway.GetAllDescriptions(),
+            data => ProductDtoConverter.Convert(data));
+
+    private async Task<QueryResult<TResult>> ExecuteQueryAsync<TData, TResult>(
+        Func<Task<QueryResult<TData>>> gatewayCall,
+        Func<TData, TResult> converter,
+        TData? fallbackData = null)
+        where TResult : class
+        where TData : class
     {
-        var result = await _gateway.GetProductById(id);
+        var result = await gatewayCall();
+
         if (!result.IsSuccess)
         {
-            return (QueryResult<ProductDto>)QueryResult<ProductDto>.Failure(result.ErrorCode);
+            return (QueryResult<TResult>)QueryResult<TResult>.Failure(result.ErrorCode);
         }
 
-        var product = result.Data;
-        if (product == null)
+        var data = result.Data ?? fallbackData;
+        if (data == null)
         {
-            return (QueryResult<ProductDto>)QueryResult<ProductDto>.Failure(result.ErrorCode);
+            return (QueryResult<TResult>)QueryResult<TResult>.Failure(result.ErrorCode);
         }
 
-        return QueryResult<ProductDto>.Success(ProductDtoConverter.Convert(product));
+        return QueryResult<TResult>.Success(converter(data));
     }
 }

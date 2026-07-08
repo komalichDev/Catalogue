@@ -12,59 +12,75 @@ public class ProductController : ControllerBase
 {
     private IInteractor _interactor;
 
-    public ProductController(IInteractor interactor)
-    {
-        _interactor = interactor;
-    }
+    public ProductController(IInteractor interactor) 
+        => _interactor = interactor;
 
     [HttpGet]
     public async Task<QueryResult<List<ProductDto>>> GetProducts()
-    {
-        var result = await _interactor.GetAllProducts();
-        if (!result.IsSuccess)
-        {
-            return (QueryResult<List<ProductDto>>)QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
-        }
+         => await ExecuteQueryAsync(
+             () => _interactor.GetAllProducts(),
+             data => data,
+             new List<ProductDto>());
 
-        return QueryResult<List<ProductDto>>.Success(result.Data ?? new List<ProductDto>());
-    }
+    [HttpGet("Product/{productId}")]
+    public async Task<QueryResult<List<ProductDto>>> GetProduct([FromRoute] ProductId productId)
+        => await ExecuteQueryAsync(
+            () => _interactor.GetProductById(productId),
+            data => new List<ProductDto> { data });
 
-    [HttpGet("{productId}")]
-    public async Task<QueryResult<List<ProductDto>>> GetProduct([FromRoute] ProductId product)
-    {
-        var result = await _interactor.GetProductById(product);
-        if (!result.IsSuccess)
-        {
-            return (QueryResult<List<ProductDto>>)QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
-        }
+    [HttpGet("Category/")]
+    public async Task<QueryResult<List<Category>>> GetCategories()
+        => await ExecuteQueryAsync(
+            () => _interactor.GetAllCategories(),
+            data => data);
 
-        if (result.Data == null)
-        {
-            return (QueryResult<List<ProductDto>>)QueryResult<List<ProductDto>>.Failure(ErrorCodes.NotFound);
-        }
+    [HttpGet("Category/{categoryId}")]
+    public async Task<QueryResult<List<Category>>> GetCategory([FromRoute] CategoryId categoryId)
+        => await ExecuteQueryAsync(
+            () => _interactor.GetCategoryById(categoryId),
+            data => new List<Category> { data });
 
-        var resultList = new List<ProductDto> { result.Data };
-        return QueryResult<List<ProductDto>>.Success(resultList);
-    }
+    [HttpGet("Description/{descriptionId}")]
+    public async Task<QueryResult<Description>> GetDescription([FromRoute] DescriptionId descriptionId)
+        => await ExecuteQueryAsync(
+            () => _interactor.GetDescriptionById(descriptionId),
+            data => data);
+
+    [HttpGet("Description/")]
+    public async Task<QueryResult<List<Description>>> GetDescriptions()
+        => await ExecuteQueryAsync(
+            () => _interactor.GetAllDescriptions(),
+            data => data);
 
     [HttpPost]
-    public async Task<Result> CreateElement([FromBody] ProductDto product)
-    {
-        //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
-        return Result.Failure(ErrorCodes.NotFound);
-    }
+    public async Task<Result> CreateElement([FromBody] ProductDto product) => Result.Failure(ErrorCodes.NotFound);
 
     [HttpPut]
-    public async Task<Result> UpdateElement([FromBody] ProductDto product)
-    {
-        //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
-        return Result.Failure(ErrorCodes.NotFound);
-    }
+    public async Task<Result> UpdateElement([FromBody] ProductDto product) => Result.Failure(ErrorCodes.NotFound);
 
     [HttpDelete("{productId}")]
-    public async Task<Result> DeleteElement([FromRoute] ProductId productId)
+    public async Task<Result> DeleteElement([FromRoute] ProductId productId) => Result.Failure(ErrorCodes.NotFound);
+
+    private static async Task<QueryResult<TResult>> ExecuteQueryAsync<TData, TResult>(
+        Func<Task<QueryResult<TData>>> action,
+        Func<TData, TResult> converter,
+        TData? fallbackData = null)
+        where TResult : class
+        where TData : class
     {
-        //var result = _interactor.Execute(Requests.CreateElement, _requestmodelConverter.Convert(product));
-        return Result.Failure(ErrorCodes.NotFound);
+        var result = await action();
+
+        if (!result.IsSuccess)
+        {
+            return (QueryResult<TResult>)QueryResult<TResult>.Failure(result.ErrorCode);
+        }
+
+        var data = result.Data ?? fallbackData;
+        if (data == null)
+        {
+            return (QueryResult<TResult>)QueryResult<TResult>.Failure(ErrorCodes.NotFound);
+        }
+
+        return QueryResult<TResult>.Success(converter(data));
     }
 }
