@@ -1,4 +1,5 @@
-﻿using Common.Exception;
+﻿using System.ComponentModel.Design.Serialization;
+using Common.Exception;
 using Common.Types;
 using DatabaseAccess.Context;
 using DatabaseAccess.Converter;
@@ -14,192 +15,138 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
     private readonly IProductDbContext _context = context;
 
     public async Task<QueryResult<RepositoryModel.ProductRepositoryModel>> GetAllProducts()
-    {
-        try {
-            var entities = await _context.Products
-                            .Include(p => p.Category)
-                            .Include(p => p.Description)
-                            .ToListAsync();
-
-            return QueryResult<RepositoryModel.ProductRepositoryModel>.Success(ProductRepositoryModelConverter.Convert(entities));
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Abrufen der Produkte: {ex.Message}");
-            return QueryResult<RepositoryModel.ProductRepositoryModel>.Failure(ErrorCodes.FailedConnection);
-        }
-    }
+            => await QueryWrapper(
+                () => _context.Products
+                        .Include(p => p.Category)
+                        .Include(p => p.Description)
+                        .ToListAsync(),
+                entities => ProductRepositoryModelConverter.Convert(entities),
+                ErrorCodes.FailedConnection,
+                "Fehler beim Abrufen der Produkte"
+            );
 
     public async Task<QueryResult<RepositoryModel.Product>> GetProduct(ProductId id)
-    {
-        try {
-            var entity = await _context.Products
-                            .Include(p => p.Category)
-                            .Include(p => p.Description)
-                            .FirstOrDefaultAsync(p => p.Id == id);
-            if (entity == null) {
-                return QueryResult<RepositoryModel.Product>.Failure(ErrorCodes.NotFound);
-            }
-            return QueryResult<RepositoryModel.Product>.Success(ProductRepositoryModelConverter.Convert(entity));
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Abrufen des Produkts: {ex.Message}");
-            return QueryResult<RepositoryModel.Product>.Failure(ErrorCodes.FailedConnection);
-        }
-    }
+        => await QueryWrapper(
+            () => _context.Products
+                    .Include(p => p.Category)
+                    .Include(p => p.Description)
+                    .FirstOrDefaultAsync(p => p.Id == id),
+            entity => ProductRepositoryModelConverter.Convert(entity),
+            ErrorCodes.FailedConnection,
+            "Fehler beim Abrufen des Produkts"
+        );
 
     public async Task<Result> CreateProduct(RepositoryModel.Product product)
-    {
-        try {
-            var entity = ProductRepositoryModelConverter.Convert(product);
-            _context.Products.Add(entity);
-            await _context.SaveChangesAsync();
-            return Result.Success();
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Erstellen des Produkts: {ex.Message}");
-            return Result.Failure(ErrorCodes.DataCreationFailed);
-        }
-    }
+        => await OperationWrapper(
+            (productEntity) => _context.Products.Add(productEntity),
+            ProductRepositoryModelConverter.Convert(product),
+            ErrorCodes.DataCreationFailed,
+            "Fehler beim Erstellen des Produkts: "
+            );
 
     public async Task<Result> CreateCategory(RepositoryModel.Category category)
-    {
-        try {
-            var entity = ProductRepositoryModelConverter.Convert(category);
-            _context.Categories.Add(entity);
-            await _context.SaveChangesAsync();
-            return Result.Success();
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Erstellen des Produkts: {ex.Message}");
-            return Result.Failure(ErrorCodes.DataCreationFailed);
-        }
-    }
+        => await OperationWrapper(
+            (categoryEntity) => _context.Categories.Add(categoryEntity),
+            ProductRepositoryModelConverter.Convert(category),
+            ErrorCodes.DataCreationFailed,
+            "Fehler beim Erstellen des Produkts: "
+            );
 
-    public async Task<Result> CreateDescription(RepositoryModel.Description description)
-    {
-        try {
-            var entity = ProductRepositoryModelConverter.Convert(description);
-            _context.Descriptions.Add(entity);
-            await _context.SaveChangesAsync();
-            return Result.Success();
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Erstellen des Produkts: {ex.Message}");
-            return Result.Failure(ErrorCodes.DataCreationFailed);
-        }
-    }
+    public async Task<Result> CreateDescription(RepositoryModel.Description description) 
+        => await OperationWrapper(
+            (descriptionEntity) => _context.Descriptions.Add(descriptionEntity),
+            ProductRepositoryModelConverter.Convert(description),
+            ErrorCodes.DataCreationFailed,
+            "Fehler beim Erstellen des Produkts: "
+            );
 
     public async Task<Result> DeleteProduct(ProductId id)
-    {
-        try {
-            var entity = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
-
-            if (entity == null) {
-                return Result.Failure(ErrorCodes.NotFound);
-            }
-
-            _context.Products.Remove(entity);
-
-            await _context.SaveChangesAsync();
-
-            return Result.Success();
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Löschen des Produkts: {ex.Message}");
-            return Result.Failure(ErrorCodes.DataDeletionFailed);
-        }
-    }
+        => await OperationWrapper(
+            (productEntity) => _context.Products.Remove(productEntity),
+            await _context.Products.FirstOrDefaultAsync(p => p.Id == id),
+            ErrorCodes.DataUpdateFailed,
+            "Fehler beim Löschen des Produkts:"
+            );
 
     public async Task<Result> DeleteCategory(CategoryId id)
-    {
-        try {
-            var entity = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        => await OperationWrapper(
+            (categoryEntity) => _context.Categories.Remove(categoryEntity),
+            await _context.Categories.FirstOrDefaultAsync(c => c.Id == id),
+            ErrorCodes.DataUpdateFailed,
+            "Fehler beim Löschen des Produkts:"
+            );
 
-            if (entity == null) {
-                return Result.Failure(ErrorCodes.NotFound);
-            }
+    public async Task<Result> DeleteDescription(DescriptionId id) 
+        => await OperationWrapper(
+            (descriptionEntity) => _context.Descriptions.Remove(descriptionEntity), 
+            await _context.Descriptions.FirstOrDefaultAsync(d => d.Id == id), 
+            ErrorCodes.DataUpdateFailed, 
+            "Fehler beim Aktualisieren des Produkts: "
+            );
 
-            _context.Categories.Remove(entity);
+    public async Task<Result> UpdateProduct(RepositoryModel.Product product) 
+        => await OperationWrapper(
+            (productEntity) => productEntity = ProductRepositoryModelConverter.Convert(product),
+            await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id),
+            ErrorCodes.DataUpdateFailed,
+            "Fehler beim Aktualisieren des Produkts: "
+            );
 
-            await _context.SaveChangesAsync();
-
-            return Result.Success();
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Löschen des Produkts: {ex.Message}");
-            return Result.Failure(ErrorCodes.DataDeletionFailed);
-        }
-    }
-
-    public async Task<Result> DeleteDescription(DescriptionId id)
-    {
-        try {
-            var entity = await _context.Descriptions.FirstOrDefaultAsync(c => c.Id == id);
-
-            if (entity == null) {
-                return Result.Failure(ErrorCodes.NotFound);
-            }
-
-            _context.Descriptions.Remove(entity);
-
-            await _context.SaveChangesAsync();
-
-            return Result.Success();
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Löschen des Produkts: {ex.Message}");
-            return Result.Failure(ErrorCodes.DataDeletionFailed);
-        }
-    }
-
-    public async Task<Result> UpdateProduct(RepositoryModel.Product product)
-    {
-        var entity = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
-
-        try {
-            if (entity == null) {
-                return Result.Failure(ErrorCodes.NotFound);
-            }
-
-            entity = ProductRepositoryModelConverter.Convert(product);
-
-            await _context.SaveChangesAsync();
-            return Result.Success();
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Aktualisieren des Produkts: {ex.Message}");
-            return Result.Failure(ErrorCodes.DataUpdateFailed);
-        }
-
-
-    }
-
-    public async Task<Result> UpdateCategory(RepositoryModel.Category category)
-    {
-        var entity = await _context.Categories.FirstOrDefaultAsync(c => c.Id == category.Id);
-
-        try {
-            if (entity == null) {
-                return Result.Failure(ErrorCodes.NotFound);
-            }
-
-            entity = ProductRepositoryModelConverter.Convert(category);
-
-            await _context.SaveChangesAsync();
-            return Result.Success();
-        } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Aktualisieren des Produkts: {ex.Message}");
-            return Result.Failure(ErrorCodes.DataUpdateFailed);
-        }
-    }
+    public async Task<Result> UpdateCategory(RepositoryModel.Category category) 
+        => await OperationWrapper(
+            (categoryEntity) => categoryEntity = ProductRepositoryModelConverter.Convert(category),
+            await _context.Categories.FirstOrDefaultAsync(c => c.Id == category.Id),
+            ErrorCodes.DataUpdateFailed,
+            "Fehler beim Aktualisieren des Produkts: "
+            );
 
     public async Task<Result> UpdateDescription(RepositoryModel.Description description)
-    {
-        var entity = await _context.Descriptions.FirstOrDefaultAsync(d => d.Id == description.Id);
+        => await OperationWrapper(
+            (descriptionEntity) => descriptionEntity = ProductRepositoryModelConverter.Convert(description),
+            await _context.Descriptions.FirstOrDefaultAsync(d => d.Id == description.Id),
+            ErrorCodes.DataUpdateFailed,
+            "Fehler beim Aktualisieren des Produkts: "
+            ); 
 
-        try {
+    private async Task<Result> OperationWrapper<T>(
+        Action<T> operation, 
+        T? entity, 
+        ErrorCodes code, 
+        string errorMessage)
+    {
+        try
+        {
             if (entity == null) {
                 return Result.Failure(ErrorCodes.NotFound);
             }
-
-            entity = ProductRepositoryModelConverter.Convert(description);
-
+            operation(entity);
             await _context.SaveChangesAsync();
             return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(errorMessage + $"{ex.Message}");
+            return Result.Failure(code);
+        }
+    }
+
+    private static async Task<QueryResult<TResult>> QueryWrapper<TEntity, TResult>(
+            Func<Task<TEntity?>> queryOperation,
+            Func<TEntity, TResult> converter,
+            ErrorCodes errorCode,
+            string errorMessage)
+        where TEntity : class
+        where TResult : class
+    {
+        try {
+            var entity = await queryOperation();
+            if (entity == null) {
+                return (QueryResult<TResult>)Result.Failure(errorCode);
+            }
+            return QueryResult<TResult>.Success(converter(entity));
         } catch (Exception ex) {
-            Console.WriteLine($"Fehler beim Aktualisieren des Produkts: {ex.Message}");
-            return Result.Failure(ErrorCodes.DataUpdateFailed);
+            Console.WriteLine($"{errorMessage}: {ex.Message}");
+            return (QueryResult<TResult>)Result.Failure(errorCode);
         }
     }
 }

@@ -3,8 +3,8 @@ using Shared.Models;
 
 namespace Client.Pages;
 
-public partial class CategoryCreator
+public partial class DescriptonCreator
 {
     [Parameter]
-    public required Category Category { get; set; }
+    public required Description Description { get; set; }
 }

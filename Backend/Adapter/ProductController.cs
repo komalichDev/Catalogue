@@ -23,7 +23,7 @@ public class ProductController : ControllerBase
         var result = await _interactor.GetAllProducts();
         if (!result.IsSuccess)
         {
-            return QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
+            return (QueryResult<List<ProductDto>>)QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
         }
 
         return QueryResult<List<ProductDto>>.Success(result.Data ?? new List<ProductDto>());
@@ -35,12 +35,12 @@ public class ProductController : ControllerBase
         var result = await _interactor.GetProductById(product);
         if (!result.IsSuccess)
         {
-            return QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
+            return (QueryResult<List<ProductDto>>)QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
         }
 
         if (result.Data == null)
         {
-            return QueryResult<List<ProductDto>>.Failure(ErrorCodes.NotFound);
+            return (QueryResult<List<ProductDto>>)QueryResult<List<ProductDto>>.Failure(ErrorCodes.NotFound);
         }
 
         var resultList = new List<ProductDto> { result.Data };

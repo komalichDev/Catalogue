@@ -18,12 +18,20 @@ public partial class Component
         catch (HttpRequestException ex)
         {
             Console.WriteLine($"Netzwerkfehler: {ex.Message}");
-            _produktListe = QueryResult<List<Shared.Models.ProductDto>>.Failure(ErrorCodes.NetworkError);
+            _produktListe = (QueryResult<List<Shared.Models.ProductDto>>?)QueryResult<List<Shared.Models.ProductDto>>.Failure(ErrorCodes.NetworkError);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Allgemeiner Fehler: {ex.ToString()}");
-            _produktListe = QueryResult<List<Shared.Models.ProductDto>>.Failure(ErrorCodes.NetworkError);
+            _produktListe = (QueryResult<List<Shared.Models.ProductDto>>?)QueryResult<List<Shared.Models.ProductDto>>.Failure(ErrorCodes.NetworkError);
         }
+    }
+
+    private void DeleteProduct(Shared.Models.ProductDto product)
+    {
+    }
+
+    private void ShowDetailedInfo(Shared.Models.ProductDto product)
+    {
     }
 }

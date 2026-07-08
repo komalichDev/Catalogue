@@ -21,7 +21,7 @@ public class ProductRepository : IProductGateway
         var dbResult = await _databaseAccess.GetAllProducts();
         if (!dbResult.IsSuccess)
         {
-            return QueryResult<List<Product>>.Failure(dbResult.ErrorCode);
+            return (QueryResult<List<Product>>)Result.Failure(dbResult.ErrorCode);
         }
 
         var result = dbResult.Data ?? new DatabaseAccess.RepositoryModel.ProductRepositoryModel(new List<DatabaseAccess.RepositoryModel.Product>());
@@ -33,12 +33,12 @@ public class ProductRepository : IProductGateway
         var dbResult = await _databaseAccess.GetProduct(id);
         if (!dbResult.IsSuccess)
         {
-            return QueryResult<Product>.Failure(dbResult.ErrorCode);
+            return (QueryResult<Product>)Result.Failure(dbResult.ErrorCode);
         }
 
         if (dbResult.Data is null)
         {
-            return QueryResult<Product>.Failure(ErrorCodes.NotFound);
+            return (QueryResult<Product>)Result.Failure(dbResult.ErrorCode);
         }
 
         return QueryResult<Product>.Success(ProductConverter.Convert(dbResult.Data));

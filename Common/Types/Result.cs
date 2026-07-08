@@ -10,7 +10,7 @@ public class Result
 
     public bool IsSuccess => ErrorCode == ErrorCodes.None;
 
-    private Result(ErrorCodes errorCode)
+    protected Result(ErrorCodes errorCode)
     {
         ErrorCode = errorCode;
     }

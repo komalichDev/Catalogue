@@ -7,5 +7,5 @@ public interface IProductGateway
 {
     public Task<QueryResult<List<Product>>> GetAllProducts();
 
-    public Task<QueryResult<Product>> GetOneProduct(ProductId id);
+    public Task<QueryResult<Product>> GetProductById(ProductId id);
 }

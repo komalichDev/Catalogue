@@ -18,7 +18,7 @@ public class Interactor : IInteractor
         var result = await _gateway.GetAllProducts();
         if (!result.IsSuccess)
         {
-            return QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
+            return (QueryResult<List<ProductDto>>)QueryResult<List<ProductDto>>.Failure(result.ErrorCode);
         }
 
         var products = result.Data ?? new List<Entity.Product>();
@@ -27,16 +27,16 @@ public class Interactor : IInteractor
 
     public async Task<QueryResult<ProductDto>> GetProductById(ProductId id)
     {
-        var result = await _gateway.GetOneProduct(id);
+        var result = await _gateway.GetProductById(id);
         if (!result.IsSuccess)
         {
-            return QueryResult<ProductDto>.Failure(result.ErrorCode);
+            return (QueryResult<ProductDto>)QueryResult<ProductDto>.Failure(result.ErrorCode);
         }
 
         var product = result.Data;
         if (product == null)
         {
-            return QueryResult<ProductDto>.Failure(result.ErrorCode);
+            return (QueryResult<ProductDto>)QueryResult<ProductDto>.Failure(result.ErrorCode);
         }
 
         return QueryResult<ProductDto>.Success(ProductDtoConverter.Convert(product));

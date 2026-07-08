@@ -12,9 +12,10 @@
     <div class="produkt-grid">
         @if(_produktListe.IsSuccess){
             @foreach (var produkt in _produktListe.Data ?? []) {
-                <div class="produkt-karte">
+                <div class="produkt-karte" @onclick="() => ShowDetailedInfo(produkt)">
                     <h4>@produkt.Name</h4>
                     <p>Preis: @produkt.Price CHF</p>
+                    <button id="produkt-@produkt.Id" class="DeleteButton" @onclick="() => DeleteProduct(produkt)">Löschen</button>
                 </div>
             }
         } else {
