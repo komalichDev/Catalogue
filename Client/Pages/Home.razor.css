@@ -1,0 +1,53 @@
+﻿.home-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: sans-serif;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 15px;
+}
+
+    .header-section h1 {
+        margin: 0;
+        color: #333;
+        font-size: 2rem;
+    }
+
+.btn-add-product {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-add-product:hover {
+        background-color: #0b5ed7;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(13, 110, 253, 0.3);
+    }
+
+    .btn-add-product:active {
+        transform: translateY(0);
+    }
+
+.create-section {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px dashed #ccc;
+}

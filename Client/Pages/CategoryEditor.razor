@@ -1,0 +1,46 @@
+﻿<div class="category-editor-container">
+    
+    <div class="editor-header">
+        <h3>CategoryEditor</h3>
+        <button id="AddCategory" class="btn-add-global" @onclick="AddNewCategory">+</button>
+    </div>
+
+    @if (_categoryListe?.Data != null) {
+        <div class="category-list">
+            @foreach (var category in _categoryListe.Data) {
+                bool isExpanded = _selectedCategory == category;
+
+                <div class="category-item @(isExpanded ? "expanded" : "")" @onclick="() => ToggleExpand(category)">
+                    @if (!isExpanded) {
+                        <div class="category-preview">
+                            <h4>@(string.IsNullOrWhiteSpace(category.Name) ? "Unbenannte Kategorie" : category.Name)</h4>
+                        </div>
+                    } else {
+                        <div class="edit-mode" @onclick:stopPropagation>
+                            
+                            <div class="form-group">
+                                <label for="CategoryName-@category.GetHashCode()">Name der Kategorie:</label>
+                                <input id="CategoryName-@category.GetHashCode()"
+                                       type="text"
+                                       @bind="_editName"
+                                       placeholder="Namen eingeben..." />
+                            </div>
+
+                            <div class="action-row">
+                                <button class="btn-close-link" @onclick="() => SaveAndClose(category)">Fertig</button>
+
+                                <button class="btn-delete" @onclick="() => DeleteCategory(category)" title="Löschen">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    } else if (!string.IsNullOrEmpty(_errorMessage)) {
+        <div class="alert-error">@_errorMessage</div>
+    } else {
+        <p>Lade Kategorien...</p>
+    }
+</div>

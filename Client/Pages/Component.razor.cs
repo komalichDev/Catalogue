@@ -1,6 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using BlazorBootstrap;
 using Client.Helpers;
-using Common.Exception;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
@@ -12,6 +11,7 @@ public partial class Component
     private QueryResult<List<ProductDto>>? _produktListe;
     private string _errorMessage = string.Empty;
     private ProductDto? _selectedProduct = null;
+    private Modal _productModal = default!;
 
     [Inject]
     protected HttpClient Http { get; set; } = default!;
@@ -21,8 +21,27 @@ public partial class Component
 
     private void DeleteProduct(Shared.Models.ProductDto product)
     {
+        // TODO: API Delete Call
     }
 
-    private void ShowDetailedInfo(Shared.Models.ProductDto product) 
-        => _selectedProduct = product;
+    private async Task ShowDetailedInfo(Shared.Models.ProductDto product)
+    {
+        _selectedProduct = product;
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "Product", _selectedProduct },
+            { "OnClose", EventCallback.Factory.Create(this, HandleEditorClosed) },
+        };
+
+        await _productModal.ShowAsync<ProductEditor>(
+            title: "Produkt bearbeiten",
+            parameters: parameters);
+    }
+
+    private async void HandleEditorClosed()
+    {
+        await _productModal.HideAsync();
+        _selectedProduct = null;
+    }
 }

@@ -1,38 +1,27 @@
-﻿@using Shared.Models;
+﻿@using BlazorBootstrap;
+@using Shared.Models;
 @using Common.Exception;
 @using Common.Types;
 @using Helpers;
 
 <h3 id="titel">Unsere Produkte</h3>
 
-@if (_selectedProduct != null)
-{
-    <ProductEditor Product="_selectedProduct" OnClose="HandleEditorClosed" />
-}
-else
-{
-    @if (_produktListe == null) 
-    {
-        <p><em>Daten werden vom Server geladen... Bitte warten.</em></p>
-    } 
-    else 
-    {
-        <div class="produkt-grid">
-            @if (_produktListe.IsSuccess)
-            {
-                @foreach (var produkt in _produktListe.Data ?? []) 
-                {
-                    <div class="produkt-karte" @onclick="() => ShowDetailedInfo(produkt)">
-                        <h4>@produkt.Name</h4>
-                        <p>Preis: @produkt.Price CHF</p>
-                        <button id="produkt-@produkt.Id" class="DeleteButton" @onclick:stopPropagation="true" @onclick="() => DeleteProduct(produkt)">Löschen</button>
-                    </div>
-                }
-            } 
-            else 
-            {
-                <ErrorPopup IsVisible="true" ErrorMessage="@ErrorMessageMapper.ToUserMessage(_produktListe.ErrorCode)" />
+@if (_produktListe == null) {
+    <p><em>Daten werden vom Server geladen... Bitte warten.</em></p>
+} else {
+    <div class="produkt-grid">
+        @if (_produktListe.IsSuccess) {
+            @foreach (var produkt in _produktListe.Data ?? []) {
+                <div @key="produkt.Id" class="produkt-karte" @onclick="() => ShowDetailedInfo(produkt)">
+                    <h4>@produkt.Name</h4>
+                    <p>Preis: @produkt.Price CHF</p>
+                    <button id="produkt-@produkt.Id" class="DeleteButton" @onclick="() => DeleteProduct(produkt)" @onclick:stopPropagation="true">Löschen</button>
+                </div>
             }
-        </div>
-    }
+        } else {
+            <ErrorPopup IsVisible="true" ErrorMessage="@ErrorMessageMapper.ToUserMessage(_produktListe.ErrorCode)" />
+        }
+    </div>
 }
+
+<Modal @ref="_productModal" Size="ModalSize.Large" />

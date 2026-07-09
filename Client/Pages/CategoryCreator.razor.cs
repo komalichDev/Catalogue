@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Common.Types;
+using Microsoft.AspNetCore.Components;
 using Shared.Models;
 
 namespace Client.Pages;

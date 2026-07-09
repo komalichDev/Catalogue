@@ -1,20 +1,44 @@
 ﻿@page "/Editor"
+@using BlazorBootstrap 
 
-<h1>ProductEditor</h1>
+<div class="editor-container">
+    <h2>Produkt bearbeiten</h2>
 
-<div id="ProductField">
-    <input id="ProductName" type="text" name="name" value="@Product.Name" />
-    <input id="ProductPrize" type="number" name="name" value="@Product.Price" />
+    <div class="editor-section">
+        <h3>Basisdaten</h3>
+        <div class="form-group">
+            <label for="ProductName">Name:</label>
+            <input id="ProductName" type="text" @bind="_editProductName" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="ProductPrize">Preis (CHF):</label>
+            <input id="ProductPrize" type="number" @bind="_editProductPrice" class="form-control" />
+        </div>
+    </div>
+
+    <div class="editor-section">
+        <div class="category-header d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Kategorie</h3>
+            <Button Color="ButtonColor.Secondary"
+                    Size="ButtonSize.Small"
+                    @onclick="OpenCategoryEditorModal">
+                Kategorien verwalten
+            </Button>
+        </div>
+        
+        <div class="category-content">
+            <CategorySelecter Id="Product.CategoryId" />
+        </div>
+    </div>
+
+    <div class="editor-section">
+        <DescriptonCreator Description="Product.Description"/>
+    </div>
+
+    <div class="editor-actions mt-4">
+        <button id="CancelButton" class="btn-cancel" @onclick="CancelEdit">Abbrechen</button>
+        <button id="SaveButton" class="btn-save">Speichern</button>
+    </div>
 </div>
 
-<CategorySelecter/>
-
-<button id = "ChangeCategoryViewButton" @onclick="ChangeCategoryView">Kategorie erstellen</button>
-
-<button id= "SaveButton">Speichern</button>
-
-<button id="CancelButton">Abbrechen</button>
-
-@code {
-
-}
+<Modal @ref="_categoryModal" />

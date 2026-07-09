@@ -8,14 +8,20 @@ namespace Client.Pages;
 public partial class CategorySelecter
 {
     [Parameter]
-
-    public required CategoryId Id { get; set; }
+    public CategoryId Id { get; set; }
 
     [Inject]
     protected HttpClient Http { get; set; } = default!;
 
-    private QueryResult<Category>? Category { get; set; }
+    private List<Category>? Categories { get; set; }
 
     protected override async Task OnInitializedAsync()
-        => Category = await HttpRequestExecuter.ExecuteGetRequests<Category>(Http, $"https://localhost:7053/api/Category/{Id}");
+    {
+        var result = await HttpRequestExecuter.ExecuteGetRequests<List<Category>>(Http, $"https://localhost:7053/api/Product/Category/");
+
+        if (result.IsSuccess && result.Data != null)
+        {
+            Categories = result.Data;
+        }
+    }
 }

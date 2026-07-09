@@ -1,11 +1,21 @@
-﻿<h3>DescriptorCreator</h3>
+﻿<div class="description-creator-container">
+    <h3 class="section-title">Beschreibung</h3>
 
-<div id="DescriptorField">
-    <input id="ShortDescriptorName" type="text" name="shortDescription" value="Kurze Beschreibung" />
-    <input id="LongDescriptorName" type="text" name="longDescription" value="Lange Beschreibung" />
-    <input id="Weight" type="number" name="weight" value="0" />
+    <div class="form-group">
+        <label for="ShortDescriptorName">Kurzbeschreibung:</label>
+        <input id="ShortDescriptorName" class="form-control" type="text" value="@Description.ShortSummary" placeholder="Kurzer Einleitungstext..." />
+    </div>
+
+    <div class="form-group">
+        <label for="LongDescriptorName">Detaillierte Zusammenfassung:</label>
+        <textarea id="LongDescriptorName" class="form-control" rows="4" value="@Description.DetailedText" placeholder="Ausführliche Details zum Produkt..."></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="Weight">Gewicht:</label>
+        <div class="input-group">
+            <input id="Weight" class="form-control weight-input" type="number" value="@Description.WeightInGrams" />
+            <span class="input-group-text">g</span>
+        </div>
+    </div>
 </div>
-
-@code {
-
-}

@@ -16,4 +16,6 @@ builder.Services.AddScoped(sp =>
     return client;
 });
 
+builder.Services.AddBlazorBootstrap();
+
 await builder.Build().RunAsync();

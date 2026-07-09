@@ -117,6 +117,33 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
             "Fehler beim Aktualisieren des Produkts: "
             ); 
 
+        public async Task<QueryResult<RepositoryModel.Category>> GetCategory(CategoryId id)
+        => await QueryWrapper(
+            () => _context.Categories
+                    .FirstOrDefaultAsync(p => p.Id == id),
+            entity => ProductRepositoryModelConverter.Convert(entity),
+            ErrorCodes.FailedConnection,
+            "Fehler beim Abrufen des Produkts"
+        );
+
+    public async Task<QueryResult<List<RepositoryModel.Description>>> GetAllDescriptions()
+        => await QueryWrapper(
+                    () => _context.Descriptions
+                            .ToListAsync(),
+                    entities => ProductRepositoryModelConverter.Convert(entities),
+                    ErrorCodes.FailedConnection,
+                    "Fehler beim Abrufen der Produkte"
+        );
+
+    public async Task<QueryResult<RepositoryModel.Description>> GetDescription(DescriptionId id)
+        => await QueryWrapper(
+            () => _context.Descriptions
+                    .FirstOrDefaultAsync(p => p.Id == id),
+            entity => ProductRepositoryModelConverter.Convert(entity),
+            ErrorCodes.FailedConnection,
+            "Fehler beim Abrufen des Produkts"
+        );
+
     private async Task<Result> OperationWrapper<T>(
         Action<T> operation, 
         T? entity, 
@@ -144,7 +171,6 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
             Func<TEntity, TResult> converter,
             ErrorCodes errorCode,
             string errorMessage)
-        where TEntity : class
         where TResult : class
     {
         try {
@@ -159,30 +185,4 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
         }
     }
 
-    public async Task<QueryResult<RepositoryModel.Category>> GetCategory(CategoryId id)
-        => await QueryWrapper(
-            () => _context.Categories
-                    .FirstOrDefaultAsync(p => p.Id == id),
-            entity => ProductRepositoryModelConverter.Convert(entity),
-            ErrorCodes.FailedConnection,
-            "Fehler beim Abrufen des Produkts"
-        );
-
-    public async Task<QueryResult<List<RepositoryModel.Description>>> GetAllDescriptions()
-        => await QueryWrapper(
-                    () => _context.Descriptions
-                            .ToListAsync(),
-                    entities => ProductRepositoryModelConverter.Convert(entities),
-                    ErrorCodes.FailedConnection,
-                    "Fehler beim Abrufen der Produkte"
-        );
-
-    public async Task<QueryResult<RepositoryModel.Description>> GetDescription(DescriptionId id)
-        => await QueryWrapper(
-            () => _context.Descriptions
-                    .FirstOrDefaultAsync(p => p.Id == id),
-            entity => ProductRepositoryModelConverter.Convert(entity),
-            ErrorCodes.FailedConnection,
-            "Fehler beim Abrufen des Produkts"
-        );
 }

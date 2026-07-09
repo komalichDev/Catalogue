@@ -1,5 +1,18 @@
 ﻿@page "/"
+@using BlazorBootstrap
 
 <PageTitle>Katalog</PageTitle>
 
-<Component/>
+<div class="home-container">
+    <div class="header-section">
+        <h1>Produktkatalog</h1>
+        
+        <button class="btn-add-product" @onclick="OpenProductEditorAsync" title="Neues Produkt erstellen">
+            + Neues Produkt
+        </button>
+    </div>
+
+    <Component />
+</div>
+
+<Modal @ref="_productModal" Size="ModalSize.Large" />
