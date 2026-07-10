@@ -1,21 +1,31 @@
 ﻿<div class="description-creator-container">
     <h3 class="section-title">Beschreibung</h3>
 
-    <div class="form-group">
-        <label for="ShortDescriptorName">Kurzbeschreibung:</label>
-        <input id="ShortDescriptorName" class="form-control" type="text" value="@Description.ShortSummary" placeholder="Kurzer Einleitungstext..." />
-    </div>
-
-    <div class="form-group">
-        <label for="LongDescriptorName">Detaillierte Zusammenfassung:</label>
-        <textarea id="LongDescriptorName" class="form-control" rows="4" value="@Description.DetailedText" placeholder="Ausführliche Details zum Produkt..."></textarea>
-    </div>
-
-    <div class="form-group">
-        <label for="Weight">Gewicht:</label>
-        <div class="input-group">
-            <input id="Weight" class="form-control weight-input" type="number" value="@Description.WeightInGrams" />
-            <span class="input-group-text">g</span>
+    @if (_isLoading) {
+        <div class="text-center p-3">
+            <span class="text-muted">Lade Beschreibung...</span>
         </div>
-    </div>
+    } else {
+        @if (!string.IsNullOrEmpty(_errorMessage)) {
+            <div class="alert alert-warning">@_errorMessage</div>
+        }
+
+        <div class="form-group">
+            <label for="ShortDescriptorName">Kurzbeschreibung:</label>
+            <input id="ShortDescriptorName" class="form-control" type="text" @bind="_editShortSummary" placeholder="Kurzer Einleitungstext..." />
+        </div>
+
+        <div class="form-group">
+            <label for="LongDescriptorName">Detaillierte Zusammenfassung:</label>
+            <textarea id="LongDescriptorName" class="form-control" rows="4" @bind="_editDetailedText" placeholder="Ausführliche Details zum Produkt..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="Weight">Gewicht:</label>
+            <div class="input-group">
+                <input id="Weight" class="form-control weight-input" type="number" @bind="_editWeight" />
+                <span class="input-group-text">g</span>
+            </div>
+        </div>
+    }
 </div>

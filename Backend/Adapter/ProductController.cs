@@ -1,6 +1,7 @@
 ﻿using Backend.UseCase.Interactor;
 using Common.Exception;
 using Common.Types;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Models;
 
@@ -12,7 +13,7 @@ public class ProductController : ControllerBase
 {
     private IInteractor _interactor;
 
-    public ProductController(IInteractor interactor) 
+    public ProductController(IInteractor interactor)
         => _interactor = interactor;
 
     [HttpGet]
@@ -53,13 +54,40 @@ public class ProductController : ControllerBase
             data => data);
 
     [HttpPost]
-    public async Task<Result> CreateElement([FromBody] ProductDto product) => Result.Failure(ErrorCodes.NotFound);
+    public async Task<Result> CreateProduct([FromBody] ProductDto product)
+        => await ExecuteOperationAsync(() => _interactor.CreateProduct(product));
+
+    [HttpPost]
+    public async Task<Result> CreateCategory([FromBody] Category category)
+        => await ExecuteOperationAsync(() => _interactor.CreateCategory(category));
 
     [HttpPut]
-    public async Task<Result> UpdateElement([FromBody] ProductDto product) => Result.Failure(ErrorCodes.NotFound);
+    public async Task<Result> UpdateProduct([FromBody] ProductDto product)
+        => await ExecuteOperationAsync(() => _interactor.UpdateProduct(product));
+
+    [HttpPut]
+    public async Task<Result> UpdateCategory([FromBody] Category category)
+        => await ExecuteOperationAsync(() => _interactor.UpdateCategory(category));
 
     [HttpDelete("{productId}")]
-    public async Task<Result> DeleteElement([FromRoute] ProductId productId) => Result.Failure(ErrorCodes.NotFound);
+    public async Task<Result> DeleteProduct([FromRoute] ProductDto product)
+        => await ExecuteOperationAsync(() => _interactor.DeleteProduct(product));
+
+    [HttpDelete("{categoryId}")]
+    public async Task<Result> DeleteCategory([FromRoute] CategoryId categoryId) 
+        => await ExecuteOperationAsync(() => _interactor.DeleteCategory(categoryId));
+
+    private static async Task<Result> ExecuteOperationAsync(Func<Task<Result>> operation)
+    {
+        var result = await operation();
+
+        if (!result.IsSuccess)
+        {
+            return Result.Failure(result.ErrorCode);
+        }
+
+        return result;
+    }
 
     private static async Task<QueryResult<TResult>> ExecuteQueryAsync<TData, TResult>(
         Func<Task<QueryResult<TData>>> action,
@@ -70,17 +98,11 @@ public class ProductController : ControllerBase
     {
         var result = await action();
 
-        if (!result.IsSuccess)
+        if (!result.IsSuccess || result.Data == null)
         {
             return (QueryResult<TResult>)QueryResult<TResult>.Failure(result.ErrorCode);
         }
 
-        var data = result.Data ?? fallbackData;
-        if (data == null)
-        {
-            return (QueryResult<TResult>)QueryResult<TResult>.Failure(ErrorCodes.NotFound);
-        }
-
-        return QueryResult<TResult>.Success(converter(data));
+        return QueryResult<TResult>.Success(converter(result.Data));
     }
 }

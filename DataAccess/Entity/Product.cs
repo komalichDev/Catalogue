@@ -13,8 +13,8 @@ public class Product
     public double Price { get; init; }
     public CategoryId CategoryId { get; init; }
     [ForeignKey(nameof(CategoryId))]
-    public Category? Category { get; init; }
+    public Category? Category { get; set; }
     public DescriptionId DescriptionId { get; init; }
     [ForeignKey(nameof(DescriptionId))]
-    public Description? Description { get; init; }
+    public Description? Description { get; set; }
 }

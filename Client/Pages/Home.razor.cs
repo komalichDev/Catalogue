@@ -23,7 +23,7 @@ public partial class Home
 
         var parameters = new Dictionary<string, object>
         {
-            { "Product", _newProduct },
+            { "Id", ProductId.From(0) },
             { "OnClose", EventCallback.Factory.Create(this, CloseEditor) },
         };
 

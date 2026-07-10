@@ -10,5 +10,6 @@ public enum ErrorCodes
     DataCreationFailed = 1006,
     DataUpdateFailed = 1007,
     DataDeletionFailed = 1008,
+    IdenticalData = 1009,
     None = 0,
 }

@@ -44,14 +44,16 @@ public partial class CategoryEditor
     {
         var newCategory = new Category(CategoryId.From(0), string.Empty);
 
-        if (_categoryListe?.Data == null)
+        if (_categoryListe?.Data != null)
+        {
+            _categoryListe.Data.Insert(0, newCategory);
+            _selectedCategory = newCategory;
+            _editName = string.Empty;
+        }
+        else
         {
             _categoryListe = QueryResult<List<Category>>.Success(new List<Category>());
         }
-
-        _categoryListe.Data.Insert(0, newCategory);
-        _selectedCategory = newCategory;
-        _editName = string.Empty;
     }
 
     private async Task SaveAndClose(Category oldCategory)

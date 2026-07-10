@@ -46,12 +46,17 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
         );
 
     public async Task<Result> CreateProduct(RepositoryModel.Product product)
-        => await OperationWrapper(
-            (productEntity) => _context.Products.Add(productEntity),
-            ProductRepositoryModelConverter.Convert(product),
-            ErrorCodes.DataCreationFailed,
-            "Fehler beim Erstellen des Produkts: "
-            );
+            => await OperationWrapper(
+                (productEntity) =>
+                {
+                    productEntity.Category = null;
+                    productEntity.Description = null;
+                    _context.Products.Add(productEntity);
+                },
+                ProductRepositoryModelConverter.Convert(product),
+                ErrorCodes.DataCreationFailed,
+                "Fehler beim Erstellen des Produkts: "
+                );
 
     public async Task<Result> CreateCategory(RepositoryModel.Category category)
         => await OperationWrapper(
@@ -93,31 +98,43 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
             "Fehler beim Aktualisieren des Produkts: "
             );
 
-    public async Task<Result> UpdateProduct(RepositoryModel.Product product) 
-        => await OperationWrapper(
-            (productEntity) => productEntity = ProductRepositoryModelConverter.Convert(product),
-            await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id),
-            ErrorCodes.DataUpdateFailed,
-            "Fehler beim Aktualisieren des Produkts: "
-            );
+    public async Task<Result> UpdateProduct(RepositoryModel.Product product)
+            => await OperationWrapper(
+                (productEntity) =>
+                {
+                    var updatedEntity = ProductRepositoryModelConverter.Convert(product);
+                    _context.Entry(productEntity).CurrentValues.SetValues(updatedEntity);
+                },
+                await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id),
+                ErrorCodes.DataUpdateFailed,
+                "Fehler beim Aktualisieren des Produkts: "
+                );
 
-    public async Task<Result> UpdateCategory(RepositoryModel.Category category) 
+    public async Task<Result> UpdateCategory(RepositoryModel.Category category)
         => await OperationWrapper(
-            (categoryEntity) => categoryEntity = ProductRepositoryModelConverter.Convert(category),
+            (categoryEntity) =>
+            {
+                var updatedEntity = ProductRepositoryModelConverter.Convert(category);
+                _context.Entry(categoryEntity).CurrentValues.SetValues(updatedEntity);
+            },
             await _context.Categories.FirstOrDefaultAsync(c => c.Id == category.Id),
             ErrorCodes.DataUpdateFailed,
-            "Fehler beim Aktualisieren des Produkts: "
+            "Fehler beim Aktualisieren der Kategorie: "
             );
 
     public async Task<Result> UpdateDescription(RepositoryModel.Description description)
         => await OperationWrapper(
-            (descriptionEntity) => descriptionEntity = ProductRepositoryModelConverter.Convert(description),
+            (descriptionEntity) =>
+            {
+                var updatedEntity = ProductRepositoryModelConverter.Convert(description);
+                _context.Entry(descriptionEntity).CurrentValues.SetValues(updatedEntity);
+            },
             await _context.Descriptions.FirstOrDefaultAsync(d => d.Id == description.Id),
             ErrorCodes.DataUpdateFailed,
-            "Fehler beim Aktualisieren des Produkts: "
-            ); 
+            "Fehler beim Aktualisieren der Beschreibung: "
+            );
 
-        public async Task<QueryResult<RepositoryModel.Category>> GetCategory(CategoryId id)
+    public async Task<QueryResult<RepositoryModel.Category>> GetCategory(CategoryId id)
         => await QueryWrapper(
             () => _context.Categories
                     .FirstOrDefaultAsync(p => p.Id == id),

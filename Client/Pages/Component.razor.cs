@@ -30,7 +30,7 @@ public partial class Component
 
         var parameters = new Dictionary<string, object>
         {
-            { "Product", _selectedProduct },
+            { "Id", _selectedProduct.Id },
             { "OnClose", EventCallback.Factory.Create(this, HandleEditorClosed) },
         };
 

@@ -46,6 +46,33 @@ public class ProductRepository : IProductGateway
             () => _databaseAccess.GetProduct(id),
             data => ProductConverter.Convert(data));
 
+    public async Task<Result> CreateProduct(Product product)
+        => await ExecuteOperationAsync(() => _databaseAccess.CreateProduct(ProductConverter.Convert(product)));
+
+    public async Task<Result> CreateDescription(Description description)
+    => await ExecuteOperationAsync(() => _databaseAccess.CreateDescription(ProductConverter.Convert(description)));
+
+    public async Task<Result> CreateCategory(Category category)
+        => await ExecuteOperationAsync(() => _databaseAccess.CreateCategory(ProductConverter.Convert(category)));
+
+    public async Task<Result> UpdateProduct(Product product)
+    => await ExecuteOperationAsync(() => _databaseAccess.UpdateProduct(ProductConverter.Convert(product)));
+
+    public async Task<Result> UpdateDescription(Description description)
+    => await ExecuteOperationAsync(() => _databaseAccess.UpdateDescription(ProductConverter.Convert(description)));
+
+    public async Task<Result> UpdateCategory(Category category)
+        => await ExecuteOperationAsync(() => _databaseAccess.UpdateCategory(ProductConverter.Convert(category)));
+
+    public async Task<Result> DeleteProduct(ProductId id)
+        => await ExecuteOperationAsync(() => _databaseAccess.DeleteProduct(id));
+
+    public async Task<Result> DeleteCategory(CategoryId id)
+        => await ExecuteOperationAsync(() => _databaseAccess.DeleteCategory(id));
+
+    public async Task<Result> DeleteDescription(DescriptionId id)
+        => await ExecuteOperationAsync(() => _databaseAccess.DeleteDescription(id));
+
     private static async Task<QueryResult<TResult>> ExecuteQueryAsync<TData, TResult>(
         Func<Task<QueryResult<TData>>> dbCall,
         Func<TData, TResult> converter,
@@ -67,5 +94,16 @@ public class ProductRepository : IProductGateway
         }
 
         return QueryResult<TResult>.Success(converter(data));
+    }
+
+    private static async Task<Result> ExecuteOperationAsync(Func<Task<Result>> operation)
+    {
+        var dbResult = await operation();
+        if (!dbResult.IsSuccess)
+        {
+            return Result.Failure(dbResult.ErrorCode);
+        }
+
+        return Result.Success();
     }
 }
