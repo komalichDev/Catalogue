@@ -1,4 +1,5 @@
 ﻿using Client.Helpers;
+using Client.Services;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
@@ -7,24 +8,23 @@ namespace Client.Pages;
 
 public partial class CategoryEditor
 {
+    private readonly IHttpProductApi _productApi;
     private QueryResult<List<Category>>? _categoryListe;
     private string _errorMessage = string.Empty;
     private Category? _selectedCategory = null;
     private string _editName = string.Empty;
+
+    public CategoryEditor(IHttpProductApi productApi)
+    {
+        _productApi = productApi;
+    }
 
     [Inject]
     protected HttpClient Http { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            _categoryListe = await HttpRequestExecuter.ExecuteGetRequests<List<Category>>(Http, $"https://localhost:7053/api/Product/Category/");
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
-        }
+        LoadData();
     }
 
     private void ToggleExpand(Category category)
@@ -56,15 +56,28 @@ public partial class CategoryEditor
         }
     }
 
-    private async Task SaveAndClose(Category oldCategory)
+    private async Task SaveAndClose(Category category)
     {
-        // TODO: Hier sendest du später den POST oder PUT Request an deine API
+        Result result;
+        if (!IdenticalCategoryAvailable(category))
+        {
+            result = _productApi.UpdateCategory(category).Result;
+        }
+        else
+        {
+            result = _productApi.AddCategory(category).Result;
+        }
 
-        var updatedCategory = new Category(oldCategory.Id, _editName);
+        if (!result.IsSuccess)
+        {
+            _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
+        }
+
+        var updatedCategory = new Category(category.Id, _editName);
 
         if (_categoryListe?.Data != null)
         {
-            var index = _categoryListe.Data.IndexOf(oldCategory);
+            var index = _categoryListe.Data.IndexOf(category);
             if (index != -1)
             {
                 _categoryListe.Data[index] = updatedCategory;
@@ -74,17 +87,54 @@ public partial class CategoryEditor
         _selectedCategory = null;
     }
 
+    private bool IdenticalCategoryAvailable(Category category)
+    {
+        if (_categoryListe?.Data != null)
+        {
+            foreach (var oldCategory in _categoryListe.Data)
+            {
+                if (oldCategory.Id == category.Id && oldCategory.Name == category.Name)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     private async Task DeleteCategory(Category category)
     {
-        // TODO: API Delete Call
+        var result = await _productApi.DeleteCategory(category.Id);
+        if (!result.IsSuccess)
+        {
+            _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
+        }
+        else
+        {
+            await LoadData();
+            StateHasChanged();
+        }
 
-        _categoryListe?.Data?.Remove(category);
-
-        if (_selectedCategory == category) 
+        if (_selectedCategory == category)
         {
             _selectedCategory = null;
         }
+    }
 
-        StateHasChanged();
+    private async Task LoadData()
+    {
+        try
+        {
+            _categoryListe = await _productApi.LoadCategories();
+            if (!_categoryListe.IsSuccess)
+            {
+                _errorMessage = ErrorMessageMapper.ToUserMessage(_categoryListe.ErrorCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+        }
     }
 }

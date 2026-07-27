@@ -13,6 +13,9 @@ public sealed class QueryResult<T> : Result where T : class
         Data = data;
     }
 
-    public static QueryResult<T> Success(T data) => new QueryResult<T>(data, ErrorCodes.None);
+    public static QueryResult<T> Success(T data) 
+        => new QueryResult<T>(data, ErrorCodes.None);
 
+    public static QueryResult<T> Failure(ErrorCodes errorCode) 
+        => new QueryResult<T>(null, errorCode);
 }

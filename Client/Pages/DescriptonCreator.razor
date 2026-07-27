@@ -5,14 +5,20 @@
         <div class="text-center p-3">
             <span class="text-muted">Lade Beschreibung...</span>
         </div>
-    } else {
+    }
+    else if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <ErrorPopup IsVisible="true" ErrorMessage="@_errorMessage" />
+    }
+    else 
+    {
         @if (!string.IsNullOrEmpty(_errorMessage)) {
-            <div class="alert alert-warning">@_errorMessage</div>
+            <ErrorPopup IsVisible="true" ErrorMessage="@_errorMessage" />
         }
 
         <div class="form-group">
             <label for="ShortDescriptorName">Kurzbeschreibung:</label>
-            <input id="ShortDescriptorName" class="form-control" type="text" @bind="_editShortSummary" placeholder="Kurzer Einleitungstext..." />
+            <InputText id="ShortDescriptorName" class="form-control" @bind-Value="_editShortSummary" placeholder="Kurzer Einleitungstext..." />
         </div>
 
         <div class="form-group">

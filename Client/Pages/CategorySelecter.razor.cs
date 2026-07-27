@@ -1,4 +1,5 @@
 ﻿using Client.Helpers;
+using Client.Services;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
@@ -7,6 +8,14 @@ namespace Client.Pages;
 
 public partial class CategorySelecter
 {
+    private readonly IHttpProductApi _productApi;
+    private string _errorMessage = string.Empty;
+
+    public CategorySelecter(IHttpProductApi productApi)
+    {
+        _productApi = productApi;
+    }
+
     [Parameter]
     public CategoryId Id { get; set; }
 
@@ -17,11 +26,30 @@ public partial class CategorySelecter
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await HttpRequestExecuter.ExecuteGetRequests<List<Category>>(Http, $"https://localhost:7053/api/Product/Category/");
+        await LoadData();
+        StateHasChanged();
+    }
 
-        if (result.IsSuccess && result.Data != null)
+    private async Task LoadData()
+    {
+        try
         {
-            Categories = result.Data;
+            var result = await _productApi.LoadCategories();
+            if (!result.IsSuccess)
+            {
+                _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
+            }
+            else
+            {
+                if (result.Data != null)
+                {
+                    Categories = result.Data;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
         }
     }
 }

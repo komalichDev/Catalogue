@@ -198,7 +198,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
             return QueryResult<TResult>.Success(converter(entity));
         } catch (Exception ex) {
             Console.WriteLine($"{errorMessage}: {ex.Message}");
-            return (QueryResult<TResult>)Result.Failure(errorCode);
+            return QueryResult<TResult>.Failure(errorCode);
         }
     }
 

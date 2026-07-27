@@ -1,15 +1,16 @@
 ﻿using BlazorBootstrap;
 using Client.Helpers;
+using Client.Services;
 using Common.Exception;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
-using static System.Net.WebRequestMethods;
 
 namespace Client.Pages;
 
 public partial class ProductEditor
 {
+    private readonly IHttpProductApi _productApi;
     private Modal _categoryModal = default!;
     private string _editProductName = string.Empty;
     private double _editProductPrice = 0.0;
@@ -18,6 +19,11 @@ public partial class ProductEditor
     private string _errorMessage = string.Empty;
 
     private ProductDto? _product;
+
+    public ProductEditor(IHttpProductApi productApi)
+    {
+        _productApi = productApi;
+    }
 
     [Parameter]
     public ProductId Id { get; set; }
@@ -35,28 +41,17 @@ public partial class ProductEditor
             _product = new ProductDto(ProductId.From(0), string.Empty, 0.0, DescriptionId.From(0), null, CategoryId.From(0), null);
             _editProductName = string.Empty;
             _editProductPrice = 0.0;
+            _isLoading = false;
             return;
-        }
-
-        _isLoading = true;
-        _errorMessage = string.Empty;
-
-        var result = await HttpRequestExecuter.ExecuteGetRequests<List<ProductDto>>(
-            Http,
-            $"https://localhost:7053/api/Product/Product/{Id.Value}");
-
-        if (result.IsSuccess && result.Data != null && result.Data.Any())
-        {
-            _product = result.Data.First();
-            _editProductName = _product.Name;
-            _editProductPrice = _product.Price;
         }
         else
         {
-            _errorMessage = result.ErrorCode.ToUserMessage();
+            _isLoading = true;
+            _errorMessage = string.Empty;
+            await LoadData(Id);
+            _isLoading = false;
+            StateHasChanged();
         }
-
-        _isLoading = false;
     }
 
     private async Task SaveData(ProductDto dto)
@@ -65,11 +60,11 @@ public partial class ProductEditor
 
         if (dto.Id == 0)
         {
-            result = await HttpRequestExecuter.ExecutePostRequest(Http, $"", dto);
+            result = await _productApi.AddProduct(dto);
         }
         else
         {
-            result = await HttpRequestExecuter.ExecutePutRequest(Http, $"", dto);
+            result = await _productApi.UpdateProduct(dto);
         }
 
         if (!result.IsSuccess)
@@ -86,5 +81,35 @@ public partial class ProductEditor
     private async Task CancelEdit()
     {
         await OnClose.InvokeAsync();
+    }
+
+    private async Task LoadData(ProductId id)
+    {
+        try
+        {
+            var result = await _productApi.LoadProduct(id);
+
+            if (!result.IsSuccess)
+            {
+                _errorMessage = result.ErrorCode.ToUserMessage();
+            }
+            else
+            {
+                if (result.Data != null)
+                {
+                    _product = result.Data;
+                    _editProductName = _product.Name;
+                    _editProductPrice = _product.Price;
+                }
+                else
+                {
+                    _errorMessage = "Produkt nicht gefunden.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+        }
     }
 }

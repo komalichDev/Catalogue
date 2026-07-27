@@ -25,7 +25,7 @@ public interface IInteractor
 
     public Task<Result> UpdateCategory(Category category);
 
-    public Task<Result> DeleteProduct(ProductDto product);
+    public Task<Result> DeleteProduct(ProductId product);
 
     public Task<Result> DeleteCategory(CategoryId category);
 }

@@ -39,7 +39,7 @@
             }
         </div>
     } else if (!string.IsNullOrEmpty(_errorMessage)) {
-        <div class="alert-error">@_errorMessage</div>
+        <ErrorPopup IsVisible="true" ErrorMessage="@_errorMessage" />
     } else {
         <p>Lade Kategorien...</p>
     }

@@ -1,5 +1,6 @@
 ﻿using BlazorBootstrap;
 using Client.Helpers;
+using Client.Services;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
@@ -14,14 +15,32 @@ public partial class Component
     private Modal _productModal = default!;
 
     [Inject]
-    protected HttpClient Http { get; set; } = default!;
+    private IHttpProductApi ProductApi { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
-        => _produktListe = await HttpRequestExecuter.ExecuteGetRequests<List<ProductDto>>(Http, "https://localhost:7053/api/Product");
-
-    private void DeleteProduct(Shared.Models.ProductDto product)
     {
-        // TODO: API Delete Call
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task DeleteProduct(Shared.Models.ProductDto product)
+    {
+        var result = await ProductApi.DeleteProduct(product.Id);
+        if (!result.IsSuccess)
+        {
+            _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
+        }
+        else
+        {
+            await LoadData();
+        }
+
+        if (_selectedProduct == product)
+        {
+            _selectedProduct = null;
+        }
+
+        StateHasChanged();
     }
 
     private async Task ShowDetailedInfo(Shared.Models.ProductDto product)
@@ -43,5 +62,21 @@ public partial class Component
     {
         await _productModal.HideAsync();
         _selectedProduct = null;
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            _produktListe = await ProductApi.LoadProducts();
+            if (!_produktListe.IsSuccess)
+            {
+                _errorMessage = ErrorMessageMapper.ToUserMessage(_produktListe.ErrorCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+        }
     }
 }

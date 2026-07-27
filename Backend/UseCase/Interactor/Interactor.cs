@@ -174,21 +174,25 @@ public class Interactor : IInteractor
         return Result.Success();
     }
 
-    public async Task<Result> DeleteProduct(ProductDto product)
+    public async Task<Result> DeleteProduct(ProductId productId)
     {
-        var result = await _gateway.DeleteProduct(ProductDtoConverter.Convert(product).Id);
+        var product = await _gateway.GetProductById(productId);
+        var result = await _gateway.DeleteProduct(productId);
         if (!result.IsSuccess)
         {
             return Result.Failure(ErrorCodes.DataDeletionFailed);
         }
 
-        if (product.Description != null)
+        if (product?.Data != null)
         {
-            var id = ProductDtoConverter.Convert(product.Description).Id;
-            var resultDescription = await _gateway.DeleteDescription(id);
-            if (!resultDescription.IsSuccess)
+            if (product.Data.Description != null)
             {
-                return Result.Failure(ErrorCodes.DataDeletionFailed);
+                var id = ProductDtoConverter.Convert(product.Data.Description).Id;
+                var resultDescription = await _gateway.DeleteDescription(id);
+                if (!resultDescription.IsSuccess)
+                {
+                    return Result.Failure(ErrorCodes.DataDeletionFailed);
+                }
             }
         }
 
