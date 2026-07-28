@@ -102,6 +102,12 @@ public class Interactor : IInteractor
         var productResult = await _gateway.CreateProduct(newProduct);
         if (!productResult.IsSuccess)
         {
+            var deletionStatus = await _gateway.DeleteDescription(addedDescription.Id);
+            if (!deletionStatus.IsSuccess)
+            {
+                return Result.Failure(ErrorCodes.DataDeletionAndCreationOfProductFailded);
+            }
+
             return Result.Failure(ErrorCodes.DataCreationFailed);
         }
 

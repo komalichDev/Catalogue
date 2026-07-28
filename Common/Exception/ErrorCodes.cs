@@ -12,5 +12,6 @@ public enum ErrorCodes
     DataDeletionFailed = 1008,
     IdenticalData = 1009,
     CategoryInUse = 1010,
+    DataDeletionAndCreationOfProductFailded = 1011,
     None = 0,
 }
