@@ -9,6 +9,7 @@ public partial class Home
 {
     private ProductDto? _newProduct;
     private Modal _productModal = default!;
+    private Component _productComponent = default!;
 
     private async Task OpenProductEditorAsync()
     {
@@ -36,5 +37,9 @@ public partial class Home
     {
         await _productModal.HideAsync();
         _newProduct = null;
+        if (_productComponent != null)
+        {
+            await _productComponent.LoadData();
+        }
     }
 }

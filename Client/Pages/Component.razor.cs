@@ -17,10 +17,27 @@ public partial class Component
     [Inject]
     private IHttpProductApi ProductApi { get; set; } = null!;
 
+    public async Task LoadData()
+    {
+        try
+        {
+            _produktListe = await ProductApi.LoadProducts();
+            if (!_produktListe.IsSuccess)
+            {
+                _errorMessage = ErrorMessageMapper.ToUserMessage(_produktListe.ErrorCode);
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
-        StateHasChanged();
     }
 
     private async Task DeleteProduct(Shared.Models.ProductDto product)
@@ -62,21 +79,6 @@ public partial class Component
     {
         await _productModal.HideAsync();
         _selectedProduct = null;
-    }
-
-    private async Task LoadData()
-    {
-        try
-        {
-            _produktListe = await ProductApi.LoadProducts();
-            if (!_produktListe.IsSuccess)
-            {
-                _errorMessage = ErrorMessageMapper.ToUserMessage(_produktListe.ErrorCode);
-            }
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
-        }
+        await LoadData();
     }
 }

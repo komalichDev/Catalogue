@@ -25,22 +25,7 @@ public partial class CategorySelecter
 
     private List<Category>? Categories { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-        StateHasChanged();
-    }
-
-    private async Task OnCategoryChanged(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out int newId))
-        {
-            var categoryId = CategoryId.From(newId);
-            await IdChanged.InvokeAsync(categoryId);
-        }
-    }
-
-    private async Task LoadData()
+    public async Task LoadData()
     {
         try
         {
@@ -56,10 +41,26 @@ public partial class CategorySelecter
                     Categories = result.Data;
                 }
             }
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task OnCategoryChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int newId))
+        {
+            var categoryId = CategoryId.From(newId);
+            await IdChanged.InvokeAsync(categoryId);
         }
     }
 }

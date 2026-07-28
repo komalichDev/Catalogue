@@ -19,7 +19,7 @@ public partial class ProductEditor
     private string _editShortSummary = string.Empty;
     private string _editDetailedText = string.Empty;
     private int _editWeight = 0;
-
+    private CategorySelecter _categorySelecter = default!;
     private bool _isLoading = false;
     private string _errorMessage = string.Empty;
 
@@ -134,6 +134,7 @@ public partial class ProductEditor
 
     private async Task HandleSave()
     {
+        _errorMessage = string.Empty;
         if (_product != null)
         {
             var newDescription = new Shared.Models.Description(
@@ -163,5 +164,13 @@ public partial class ProductEditor
     private void HandleCategoryChanged(CategoryId newId)
     {
         _editCategoryId = newId;
+    }
+
+    private async Task OnCategoryModalClosed()
+    {
+        if (_categorySelecter != null)
+        {
+            await _categorySelecter.LoadData();
+        }
     }
 }
