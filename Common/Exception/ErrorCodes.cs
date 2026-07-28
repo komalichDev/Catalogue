@@ -11,5 +11,6 @@ public enum ErrorCodes
     DataUpdateFailed = 1007,
     DataDeletionFailed = 1008,
     IdenticalData = 1009,
+    CategoryInUse = 1010,
     None = 0,
 }

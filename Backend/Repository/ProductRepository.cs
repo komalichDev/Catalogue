@@ -84,13 +84,13 @@ public class ProductRepository : IProductGateway
 
         if (!dbResult.IsSuccess)
         {
-            return (QueryResult<TResult>)Result.Failure(dbResult.ErrorCode);
+            return QueryResult<TResult>.Failure(dbResult.ErrorCode);
         }
 
         var data = dbResult.Data ?? fallbackData;
         if (data == null)
         {
-            return (QueryResult<TResult>)Result.Failure(dbResult.ErrorCode);
+            return QueryResult<TResult>.Failure(dbResult.ErrorCode);
         }
 
         return QueryResult<TResult>.Success(converter(data));

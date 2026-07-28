@@ -24,7 +24,7 @@ public partial class CategoryEditor
 
     protected override async Task OnInitializedAsync()
     {
-        LoadData();
+        await LoadData();
     }
 
     private void ToggleExpand(Category category)
@@ -58,49 +58,27 @@ public partial class CategoryEditor
 
     private async Task SaveAndClose(Category category)
     {
+        var updatedCategory = new Category(category.Id, _editName);
         Result result;
-        if (!IdenticalCategoryAvailable(category))
+
+        if (category.Id.Value == 0)
         {
-            result = _productApi.UpdateCategory(category).Result;
+            result = await _productApi.AddCategory(updatedCategory);
         }
         else
         {
-            result = _productApi.AddCategory(category).Result;
+            result = await _productApi.UpdateCategory(updatedCategory);
         }
 
         if (!result.IsSuccess)
         {
             _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
+            return;
         }
 
-        var updatedCategory = new Category(category.Id, _editName);
-
-        if (_categoryListe?.Data != null)
-        {
-            var index = _categoryListe.Data.IndexOf(category);
-            if (index != -1)
-            {
-                _categoryListe.Data[index] = updatedCategory;
-            }
-        }
+        await LoadData();
 
         _selectedCategory = null;
-    }
-
-    private bool IdenticalCategoryAvailable(Category category)
-    {
-        if (_categoryListe?.Data != null)
-        {
-            foreach (var oldCategory in _categoryListe.Data)
-            {
-                if (oldCategory.Id == category.Id && oldCategory.Name == category.Name)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     private async Task DeleteCategory(Category category)

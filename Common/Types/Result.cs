@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 using Common.Exception;
 
 namespace Common.Types;
@@ -10,7 +11,8 @@ public class Result
 
     public bool IsSuccess => ErrorCode == ErrorCodes.None;
 
-    protected Result(ErrorCodes errorCode)
+    [JsonConstructor]
+    public Result(ErrorCodes errorCode)
     {
         ErrorCode = errorCode;
     }

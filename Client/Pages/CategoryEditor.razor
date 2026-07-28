@@ -5,6 +5,10 @@
         <button id="AddCategory" class="btn-add-global" @onclick="AddNewCategory">+</button>
     </div>
 
+    @if (!string.IsNullOrEmpty(_errorMessage)) {
+        <ErrorPopup IsVisible="true" ErrorMessage="@_errorMessage" />
+    }
+
     @if (_categoryListe?.Data != null) {
         <div class="category-list">
             @foreach (var category in _categoryListe.Data) {
@@ -23,6 +27,7 @@
                                 <input id="CategoryName-@category.GetHashCode()"
                                        type="text"
                                        @bind="_editName"
+                                       @bind:event="oninput"
                                        placeholder="Namen eingeben..." />
                             </div>
 
@@ -38,8 +43,6 @@
                 </div>
             }
         </div>
-    } else if (!string.IsNullOrEmpty(_errorMessage)) {
-        <ErrorPopup IsVisible="true" ErrorMessage="@_errorMessage" />
     } else {
         <p>Lade Kategorien...</p>
     }

@@ -1,18 +1,14 @@
 ﻿<div class="custom-select-wrapper">
-    @if(Categories != null)
-    {
-        <select id="CategorySelecter" name="category" class="modern-select">
-            <option value="" disabled>-- Bitte wähle eine Kategorie --</option>
+    @if (Categories != null) {
+        <select id="CategorySelecter" name="category" class="modern-select" value="@Id.Value" @onchange="OnCategoryChanged">
+            <option value="0" disabled>-- Bitte wähle eine Kategorie --</option>
         
-            @if (Categories != null) {
-                @foreach (var category in Categories) {
-                    <option value="@category.Id" selected="@(category.Id == Id)">@category.Name</option>
-                }
+            @foreach (var category in Categories) {
+                <option value="@category.Id.Value">@category.Name</option>
             }
         </select>
         <span class="custom-arrow"></span>
-    } else if (_errorMessage != string.Empty)
-    {
+    } else if (_errorMessage != string.Empty) {
         <ErrorPopup IsVisible="true" ErrorMessage="@_errorMessage" />
     }
 </div>

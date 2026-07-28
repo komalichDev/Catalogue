@@ -46,10 +46,13 @@ public class Interactor : IInteractor
     public async Task<Result> CreateProduct(ProductDto product)
     {
         // ToDo: Refactoring
-        if (product.Category == null)
+        var categoryCheck = await _gateway.GetCategoryById(product.CategoryId);
+        if (!categoryCheck.IsSuccess || categoryCheck.Data == null) 
         {
-            return Result.Failure(ErrorCodes.DataCreationFailed);
+            return Result.Failure(ErrorCodes.NotFound);
         }
+
+        var currentCategory = categoryCheck.Data;
 
         var convertedProduct = ProductDtoConverter.Convert(product);
 
@@ -72,19 +75,19 @@ public class Interactor : IInteractor
             }
         }
 
-        var descriptions = GetAllDescriptions();
+        var descriptions = await GetAllDescriptions();
 
-        if (descriptions.Result.Data == null)
+        if (descriptions.Data == null)
         {
             return Result.Failure(ErrorCodes.DataCreationFailed);
         }
-
-        List<Description> sortedDescriptions = (List<Description>)(descriptions.Result.Data.OrderBy(c => c.Id));
 
         if (product.Description == null)
         {
             return Result.Failure(ErrorCodes.DataCreationFailed);
         }
+
+        List<Description> sortedDescriptions = descriptions.Data.OrderBy(c => c.Id).ToList();
 
         var addedDescription = GetIdOfNewlyCreatedDescription(sortedDescriptions, product.Description);
         var newProduct = new Entity.Product(
@@ -201,6 +204,11 @@ public class Interactor : IInteractor
 
     public async Task<Result> DeleteCategory(CategoryId category)
     {
+        if (await IsCategoryInUse(category))
+        {
+            return Result.Failure(ErrorCodes.CategoryInUse);
+        }
+
         var result = await _gateway.DeleteCategory(category);
         if (!result.IsSuccess)
         {
@@ -208,6 +216,24 @@ public class Interactor : IInteractor
         }
 
         return Result.Success();
+    }
+
+    private async Task<bool> IsCategoryInUse(CategoryId id)
+    {
+        var products = await _gateway.GetAllProducts();
+
+        if (products.IsSuccess && products.Data != null)
+        {
+            foreach (var product in products.Data)
+            {
+                if (product.CategoryId == id)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private async Task<QueryResult<TResult>> ExecuteQueryAsync<TData, TResult>(

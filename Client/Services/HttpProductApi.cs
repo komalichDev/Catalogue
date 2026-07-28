@@ -65,7 +65,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecutePutRequest<ProductDto>($"https://localhost:7053/api/Product/{product.Id.Value}", product);
+                    var result = await executer.ExecutePutRequest<ProductDto>($"https://localhost:7053/api/Product", product);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataUpdateFailed);
@@ -74,7 +74,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecutePutRequest<Category>($"https://localhost:7053/api/Product/Category/{category.Id.Value}", category);
+                    var result = await executer.ExecutePutRequest<Category>($"https://localhost:7053/api/Product/Category/", category);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataUpdateFailed);
@@ -101,7 +101,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteDeleteRequest<ProductId>($"https://localhost:7053/api/Product/{product.Value}", product);
+                    var result = await executer.ExecuteDeleteRequest<ProductId>($"https://localhost:7053/api/Product", product);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataDeletionFailed);
@@ -110,7 +110,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteDeleteRequest<CategoryId>($"https://localhost:7053/api/Product/Category/{category.Value}", category);
+                    var result = await executer.ExecuteDeleteRequest<CategoryId>($"https://localhost:7053/api/Product/Category", category);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataDeletionFailed);

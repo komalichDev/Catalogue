@@ -28,6 +28,10 @@ public static class ErrorMessageMapper
 
             ErrorCodes.IdenticalData => "Die eingegebenen Daten sind identisch mit den bereits vorhandenen. Es wurden keine Änderungen vorgenommen.",
 
+            ErrorCodes.CategoryInUse => "Diese Kategorie kann man nicht löschen, " +
+            "da sie noch von Produkten verwendet wird. " +
+            "Bitte weisen Sie den Produkten eine andere Kategorie zu um diese Kategorie zu löschen.",
+
             _ => "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später noch einmal.",
         };
     }

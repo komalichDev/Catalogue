@@ -1,76 +1,47 @@
-﻿using Client.Helpers;
-using Client.Services;
-using Common.Types;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 
 namespace Client.Pages;
 
 public partial class DescriptonCreator
 {
-    private readonly IHttpProductApi _productApi;
-    private string _editShortSummary = string.Empty;
-    private string _editDetailedText = string.Empty;
-    private double _editWeight = 0;
-
-    private bool _isLoading = false;
-    private string _errorMessage = string.Empty;
-
-    public DescriptonCreator(IHttpProductApi productApi)
-    {
-        _productApi = productApi;
-    }
+    [Parameter]
+    public string ShortSummary { get; set; } = string.Empty;
 
     [Parameter]
-    public DescriptionId Id { get; set; }
+    public EventCallback<string> ShortSummaryChanged { get; set; }
 
-    [Inject]
-    protected HttpClient Http { get; set; } = default!;
+    [Parameter]
+    public string DetailedText { get; set; } = string.Empty;
 
-    protected override async Task OnParametersSetAsync()
+    [Parameter]
+    public EventCallback<string> DetailedTextChanged { get; set; }
+
+    [Parameter]
+    public int WeightInGrams { get; set; }
+
+    [Parameter]
+    public EventCallback<int> WeightInGramsChanged { get; set; }
+
+    private Task OnShortSummaryChanged(ChangeEventArgs e)
     {
-        if (Id.Value == 0)
-        {
-            _editShortSummary = string.Empty;
-            _editDetailedText = string.Empty;
-            _editWeight = 0;
-            return;
-        }
-
-        _isLoading = true;
-        _errorMessage = string.Empty;
-
-        await LoadData(Id);
-        StateHasChanged();
-        _isLoading = false;
+        ShortSummary = e.Value?.ToString() ?? string.Empty;
+        return ShortSummaryChanged.InvokeAsync(ShortSummary);
     }
 
-    private async Task LoadData(DescriptionId id)
+    private Task OnDetailedTextChanged(ChangeEventArgs e)
     {
-        try
-        {
-            var result = await _productApi.LoadDescription(id);
+        DetailedText = e.Value?.ToString() ?? string.Empty;
+        return DetailedTextChanged.InvokeAsync(DetailedText);
+    }
 
-            if (!result.IsSuccess)
-            {
-                _errorMessage = result.ErrorCode.ToUserMessage();
-            }
-            else
-            {
-                if (result.Data != null)
-                {
-                    _editShortSummary = result.Data.ShortSummary;
-                    _editDetailedText = result.Data.DetailedText;
-                    _editWeight = result.Data.WeightInGrams;
-                }
-                else
-                {
-                    _errorMessage = result.ErrorCode.ToUserMessage();
-                }
-            }
-        }
-        catch (Exception ex)
+    private Task OnWeightChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int weight))
         {
-            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+            WeightInGrams = weight;
+            return WeightInGramsChanged.InvokeAsync(WeightInGrams);
         }
+
+        return Task.CompletedTask;
     }
 }

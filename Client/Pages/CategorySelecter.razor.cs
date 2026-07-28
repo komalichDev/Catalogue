@@ -12,12 +12,13 @@ public partial class CategorySelecter
     private string _errorMessage = string.Empty;
 
     public CategorySelecter(IHttpProductApi productApi)
-    {
-        _productApi = productApi;
-    }
+        => _productApi = productApi;
 
     [Parameter]
     public CategoryId Id { get; set; }
+
+    [Parameter]
+    public EventCallback<CategoryId> IdChanged { get; set; }
 
     [Inject]
     protected HttpClient Http { get; set; } = default!;
@@ -28,6 +29,15 @@ public partial class CategorySelecter
     {
         await LoadData();
         StateHasChanged();
+    }
+
+    private async Task OnCategoryChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int newId))
+        {
+            var categoryId = CategoryId.From(newId);
+            await IdChanged.InvokeAsync(categoryId);
+        }
     }
 
     private async Task LoadData()

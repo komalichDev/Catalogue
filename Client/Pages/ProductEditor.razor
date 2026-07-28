@@ -31,25 +31,25 @@
         <div class="editor-section">
             <div class="category-header d-flex justify-content-between align-items-center mb-3">
                 <h3 class="mb-0">Kategorie</h3>
-                <Button Color="ButtonColor.Secondary"
-                        Size="ButtonSize.Small"
-                        @onclick="OpenCategoryEditorModal">
+                <Button Color="ButtonColor.Secondary" Size="ButtonSize.Small" @onclick="OpenCategoryEditorModal">
                     Kategorien verwalten
                 </Button>
             </div>
-            
+    
             <div class="category-content">
-                <CategorySelecter Id="_product.CategoryId" />
+                <CategorySelecter Id="_editCategoryId" IdChanged="HandleCategoryChanged" />
             </div>
         </div>
 
         <div class="editor-section">
-            <DescriptonCreator Id="_product.DescriptionId" />
+            <DescriptonCreator @bind-ShortSummary="_editShortSummary"
+                               @bind-DetailedText="_editDetailedText"
+                               @bind-WeightInGrams="_editWeight" />
         </div>
 
         <div class="editor-actions mt-4">
             <button id="CancelButton" class="btn-cancel" @onclick="CancelEdit">Abbrechen</button>
-            <button id="SaveButton" class="btn-save">Speichern</button>
+            <button id="SaveButton" class="btn-save" @onclick="HandleSave">Speichern</button>
         </div>
     }
 </div>

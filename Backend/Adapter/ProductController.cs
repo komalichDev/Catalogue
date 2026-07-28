@@ -24,9 +24,9 @@ public class ProductController : ControllerBase
              new List<ProductDto>());
 
     [HttpGet("Product/{productId}")]
-    public async Task<QueryResult<ProductDto>> GetProduct([FromRoute] ProductId productId)
+    public async Task<QueryResult<ProductDto>> GetProduct([FromRoute] int productId)
         => await ExecuteQueryAsync(
-            () => _interactor.GetProductById(productId),
+            () => _interactor.GetProductById(ProductId.From(productId)),
             data => data);
 
     [HttpGet("Category/")]
@@ -36,15 +36,15 @@ public class ProductController : ControllerBase
             data => data);
 
     [HttpGet("Category/{categoryId}")]
-    public async Task<QueryResult<Category>> GetCategory([FromRoute] CategoryId categoryId)
+    public async Task<QueryResult<Category>> GetCategory([FromRoute] int categoryId)
         => await ExecuteQueryAsync(
-            () => _interactor.GetCategoryById(categoryId),
+            () => _interactor.GetCategoryById(CategoryId.From(categoryId)),
             data => data);
 
     [HttpGet("Description/{descriptionId}")]
-    public async Task<QueryResult<Description>> GetDescription([FromRoute] DescriptionId descriptionId)
+    public async Task<QueryResult<Description>> GetDescription([FromRoute] int descriptionId)
         => await ExecuteQueryAsync(
-            () => _interactor.GetDescriptionById(descriptionId),
+            () => _interactor.GetDescriptionById(DescriptionId.From(descriptionId)),
             data => data);
 
     [HttpGet("Description/")]
@@ -70,12 +70,12 @@ public class ProductController : ControllerBase
         => await ExecuteOperationAsync(() => _interactor.UpdateCategory(category));
 
     [HttpDelete("{productId}")]
-    public async Task<Result> DeleteProduct([FromRoute] ProductId product)
-        => await ExecuteOperationAsync(() => _interactor.DeleteProduct(product));
+    public async Task<Result> DeleteProduct([FromRoute] int productId)
+        => await ExecuteOperationAsync(() => _interactor.DeleteProduct(ProductId.From(productId)));
 
     [HttpDelete("Category/{categoryId}")]
-    public async Task<Result> DeleteCategory([FromRoute] CategoryId categoryId)
-        => await ExecuteOperationAsync(() => _interactor.DeleteCategory(categoryId));
+    public async Task<Result> DeleteCategory([FromRoute] int categoryId)
+        => await ExecuteOperationAsync(() => _interactor.DeleteCategory(CategoryId.From(categoryId)));
 
     private static async Task<Result> ExecuteOperationAsync(Func<Task<Result>> operation)
     {

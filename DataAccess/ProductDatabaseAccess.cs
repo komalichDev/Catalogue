@@ -15,15 +15,15 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
     private readonly IProductDbContext _context = context;
 
     public async Task<QueryResult<RepositoryModel.ProductRepositoryModel>> GetAllProducts()
-            => await QueryWrapper(
-                () => _context.Products
-                        .Include(p => p.Category)
-                        .Include(p => p.Description)
-                        .ToListAsync(),
-                entities => ProductRepositoryModelConverter.Convert(entities),
-                ErrorCodes.FailedConnection,
-                "Fehler beim Abrufen der Produkte"
-            );
+        => await QueryWrapper(
+            () => _context.Products
+                    .Include(p => p.Category)
+                    .Include(p => p.Description)
+                    .ToListAsync(),
+            entities => ProductRepositoryModelConverter.Convert(entities),
+            ErrorCodes.FailedConnection,
+            "Fehler beim Abrufen der Produkte"
+        );
 
     public async Task<QueryResult<List<RepositoryModel.Category>>> GetAllCategories() 
         => await QueryWrapper(
@@ -46,17 +46,17 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
         );
 
     public async Task<Result> CreateProduct(RepositoryModel.Product product)
-            => await OperationWrapper(
-                (productEntity) =>
-                {
-                    productEntity.Category = null;
-                    productEntity.Description = null;
-                    _context.Products.Add(productEntity);
-                },
-                ProductRepositoryModelConverter.Convert(product),
-                ErrorCodes.DataCreationFailed,
-                "Fehler beim Erstellen des Produkts: "
-                );
+        => await OperationWrapper(
+            (productEntity) =>
+            {
+                productEntity.Category = null;
+                productEntity.Description = null;
+                _context.Products.Add(productEntity);
+            },
+            ProductRepositoryModelConverter.Convert(product),
+            ErrorCodes.DataCreationFailed,
+            "Fehler beim Erstellen des Produkts: "
+            );
 
     public async Task<Result> CreateCategory(RepositoryModel.Category category)
         => await OperationWrapper(
@@ -99,16 +99,18 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
             );
 
     public async Task<Result> UpdateProduct(RepositoryModel.Product product)
-            => await OperationWrapper(
-                (productEntity) =>
-                {
-                    var updatedEntity = ProductRepositoryModelConverter.Convert(product);
-                    _context.Entry(productEntity).CurrentValues.SetValues(updatedEntity);
-                },
-                await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id),
-                ErrorCodes.DataUpdateFailed,
-                "Fehler beim Aktualisieren des Produkts: "
-                );
+        => await OperationWrapper(
+            (productEntity) =>
+            {
+                var updatedEntity = ProductRepositoryModelConverter.Convert(product);
+                updatedEntity.Category = null;
+                updatedEntity.Description = null;
+                _context.Entry(productEntity).CurrentValues.SetValues(updatedEntity);
+            },
+            await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id),
+            ErrorCodes.DataUpdateFailed,
+            "Fehler beim Aktualisieren des Produkts: "
+            );
 
     public async Task<Result> UpdateCategory(RepositoryModel.Category category)
         => await OperationWrapper(
