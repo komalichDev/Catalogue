@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazor.Bootstrap" Version="3.5.0" />
+    <PackageReference Include="BootstrapBlazor" Version="10.8.0" />
     <PackageReference Include="Messerli.CodeStyle" Version="2.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.9" PrivateAssets="all" />

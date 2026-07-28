@@ -14,6 +14,24 @@ public static class ErrorMessageMapper
 
             ErrorCodes.EntityNotFound => "Das gesuchte Element existiert nicht mehr oder wurde entfernt.",
 
+            ErrorCodes.NetworkError => "Ein Netzwerkfehler ist aufgetreten. Bitte überprüfe deine Internetverbindung.",
+
+            ErrorCodes.FailedConnection => "Die Verbindung zum Server ist fehlgeschlagen. Bitte versuche es später erneut.",
+
+            ErrorCodes.NotFound => "Der gesuchte Inhalt konnte nicht gefunden werden.",
+
+            ErrorCodes.DataCreationFailed => "Das Element konnte nicht erstellt werden. Bitte versuche es noch einmal.",
+
+            ErrorCodes.DataUpdateFailed => "Die Änderungen konnten nicht gespeichert werden. Bitte überprüfe deine Eingaben.",
+
+            ErrorCodes.DataDeletionFailed => "Das Element konnte nicht gelöscht werden. Bitte versuche es später erneut.",
+
+            ErrorCodes.IdenticalData => "Die eingegebenen Daten sind identisch mit den bereits vorhandenen. Es wurden keine Änderungen vorgenommen.",
+
+            ErrorCodes.CategoryInUse => "Diese Kategorie kann man nicht löschen, " +
+            "da sie noch von Produkten verwendet wird. " +
+            "Bitte weisen Sie den Produkten eine andere Kategorie zu um diese Kategorie zu löschen.",
+
             _ => "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später noch einmal.",
         };
     }

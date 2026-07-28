@@ -13,11 +13,10 @@
     padding: 20px;
 }
 
-.produkt-karte 
-{
+.produkt-karte {
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
-    border-radius: 10px; 
+    border-radius: 10px;
     padding: 20px;
     width: 320px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
@@ -26,6 +25,8 @@
     align-items: center;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    user-select: none;
 }
 
 .produkt-karte:hover 
@@ -40,4 +41,22 @@
     margin-top: 0;
     color: #333;
     font-size: 1.3rem;
+}
+
+.DeleteButton {
+    background-color: #cc0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.DeleteButton:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+    border-color: #b0b0b0;
 }

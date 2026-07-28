@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace DatabaseAccess.Repositorymodel;
+namespace DatabaseAccess.RepositoryModel;
 
 public record ProductRepositoryModel(
     List<Product> Products);
