@@ -47,9 +47,9 @@ public class Interactor : IInteractor
     {
         // ToDo: Refactoring
         var categoryCheck = await _gateway.GetCategoryById(product.CategoryId);
-        if (!categoryCheck.IsSuccess || categoryCheck.Data == null) 
+        if (!categoryCheck.IsSuccess || categoryCheck.Data == null)
         {
-            return Result.Failure(ErrorCodes.NotFound);
+            return Result.Failure(ErrorCodes.CategoryNotFound);
         }
 
         var currentCategory = categoryCheck.Data;
@@ -58,12 +58,12 @@ public class Interactor : IInteractor
 
         if (await IdenticalDataPresent(convertedProduct))
         {
-            return Result.Failure(ErrorCodes.IdenticalData);
+            return Result.Failure(ErrorCodes.ProductAlreadyExists);
         }
 
         if (await IdenticalDataPresent(convertedProduct.Description))
         {
-            return Result.Failure(ErrorCodes.IdenticalData);
+            return Result.Failure(ErrorCodes.DescriptionAlreadyExists);
         }
 
         if (product.Description != null)
@@ -71,20 +71,15 @@ public class Interactor : IInteractor
             var descriptionResult = await _gateway.CreateDescription(ProductDtoConverter.Convert(product.Description));
             if (!descriptionResult.IsSuccess)
             {
-                return Result.Failure(ErrorCodes.DataCreationFailed);
+                return Result.Failure(ErrorCodes.DescriptionCreationFailed);
             }
         }
 
         var descriptions = await GetAllDescriptions();
 
-        if (descriptions.Data == null)
+        if (descriptions.Data == null || product.Description == null)
         {
-            return Result.Failure(ErrorCodes.DataCreationFailed);
-        }
-
-        if (product.Description == null)
-        {
-            return Result.Failure(ErrorCodes.DataCreationFailed);
+            return Result.Failure(ErrorCodes.DescriptionCreationFailed);
         }
 
         List<Description> sortedDescriptions = descriptions.Data.OrderBy(c => c.Id).ToList();
@@ -108,7 +103,7 @@ public class Interactor : IInteractor
                 return Result.Failure(ErrorCodes.DataDeletionAndCreationOfProductFailded);
             }
 
-            return Result.Failure(ErrorCodes.DataCreationFailed);
+            return Result.Failure(ErrorCodes.ProductCreationFailed);
         }
 
         return Result.Success();
@@ -121,7 +116,7 @@ public class Interactor : IInteractor
         {
             if (await IdenticalDataPresent(ProductDtoConverter.Convert(category)))
             {
-                return Result.Failure(ErrorCodes.IdenticalData);
+                return Result.Failure(ErrorCodes.CategoryAlreadyExists);
             }
 
             if (category != null)
@@ -129,7 +124,7 @@ public class Interactor : IInteractor
                 var categoryResult = await _gateway.CreateCategory(ProductDtoConverter.Convert(category));
                 if (!categoryResult.IsSuccess)
                 {
-                    return Result.Failure(ErrorCodes.DataCreationFailed);
+                    return Result.Failure(ErrorCodes.CategoryCreationFailed);
                 }
             }
         }
@@ -144,7 +139,7 @@ public class Interactor : IInteractor
             var categoryResult = await _gateway.UpdateCategory(ProductDtoConverter.Convert(product.Category));
             if (!categoryResult.IsSuccess)
             {
-                return Result.Failure(ErrorCodes.DataUpdateFailed);
+                return Result.Failure(ErrorCodes.CategoryUpdateFailed);
             }
         }
 
@@ -153,7 +148,7 @@ public class Interactor : IInteractor
             var descriptionResult = await _gateway.UpdateDescription(ProductDtoConverter.Convert(product.Description));
             if (!descriptionResult.IsSuccess)
             {
-                return Result.Failure(ErrorCodes.DataUpdateFailed);
+                return Result.Failure(ErrorCodes.DescriptionUpdateFailed);
             }
         }
 
@@ -162,7 +157,7 @@ public class Interactor : IInteractor
             var productResult = await _gateway.UpdateProduct(ProductDtoConverter.Convert(product));
             if (!productResult.IsSuccess)
             {
-                return Result.Failure(ErrorCodes.DataUpdateFailed);
+                return Result.Failure(ErrorCodes.ProductUpdateFailed);
             }
         }
 
@@ -176,7 +171,7 @@ public class Interactor : IInteractor
             var categoryResult = await _gateway.UpdateCategory(ProductDtoConverter.Convert(category));
             if (!categoryResult.IsSuccess)
             {
-                return Result.Failure(ErrorCodes.DataUpdateFailed);
+                return Result.Failure(ErrorCodes.CategoryUpdateFailed);
             }
         }
 
@@ -189,7 +184,7 @@ public class Interactor : IInteractor
         var result = await _gateway.DeleteProduct(productId);
         if (!result.IsSuccess)
         {
-            return Result.Failure(ErrorCodes.DataDeletionFailed);
+            return Result.Failure(ErrorCodes.ProductDeletionFailed);
         }
 
         if (product?.Data != null)
@@ -200,7 +195,7 @@ public class Interactor : IInteractor
                 var resultDescription = await _gateway.DeleteDescription(id);
                 if (!resultDescription.IsSuccess)
                 {
-                    return Result.Failure(ErrorCodes.DataDeletionFailed);
+                    return Result.Failure(ErrorCodes.DescriptionDeletionFailed);
                 }
             }
         }
@@ -218,7 +213,7 @@ public class Interactor : IInteractor
         var result = await _gateway.DeleteCategory(category);
         if (!result.IsSuccess)
         {
-            return Result.Failure(ErrorCodes.DataDeletionFailed);
+            return Result.Failure(ErrorCodes.CategoryDeletionFailed);
         }
 
         return Result.Success();
