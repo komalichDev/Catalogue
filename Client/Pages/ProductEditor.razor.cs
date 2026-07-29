@@ -1,34 +1,26 @@
 ﻿using BlazorBootstrap;
-using Client.Helpers;
 using Client.Services;
-using Common.Exception;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
 
 namespace Client.Pages;
 
-public partial class ProductEditor
+public partial class ProductEditor(IHttpProductApi productApi) : BaseComponent
 {
-    private readonly IHttpProductApi _productApi;
-    private Modal _categoryModal = default!;
-    private string _editProductName = string.Empty;
-    private double _editProductPrice = 0.0;
+    private readonly IHttpProductApi productApi = productApi;
+    private Modal categoryModal = default!;
+    private string editProductName = string.Empty;
+    private double editProductPrice = 0.0;
 
-    private CategoryId _editCategoryId;
-    private string _editShortSummary = string.Empty;
-    private string _editDetailedText = string.Empty;
-    private int _editWeight = 0;
-    private CategorySelecter _categorySelecter = default!;
-    private bool _isLoading = false;
-    private string _errorMessage = string.Empty;
+    private CategoryId editCategoryId;
+    private string editShortSummary = string.Empty;
+    private string editDetailedText = string.Empty;
+    private int editWeight = 0;
+    private CategorySelecter categorySelecter = default!;
+    private bool isLoading = false;
 
-    private ProductDto? _product;
-
-    public ProductEditor(IHttpProductApi productApi)
-    {
-        _productApi = productApi;
-    }
+    private ProductDto? product;
 
     [Parameter]
     public ProductId Id { get; set; }
@@ -43,134 +35,91 @@ public partial class ProductEditor
     {
         if (Id.Value == 0)
         {
-            _product = new ProductDto(ProductId.From(0), string.Empty, 0.0, DescriptionId.From(0), null, CategoryId.From(0), null);
-            _editProductName = string.Empty;
-            _editProductPrice = 0.0;
+            this.product = new ProductDto(ProductId.From(0), string.Empty, 0.0, DescriptionId.From(0), null, CategoryId.From(0), null);
+            this.editProductName = string.Empty;
+            this.editProductPrice = 0.0;
 
-            _editCategoryId = CategoryId.From(0);
-            _editShortSummary = string.Empty;
-            _editDetailedText = string.Empty;
-            _editWeight = 0;
+            this.editCategoryId = CategoryId.From(0);
+            this.editShortSummary = string.Empty;
+            this.editDetailedText = string.Empty;
+            this.editWeight = 0;
 
-            _isLoading = false;
+            this.isLoading = false;
         }
         else
         {
-            _isLoading = true;
-            _errorMessage = string.Empty;
-            await LoadData(Id);
-            _isLoading = false;
-        }
-
-        StateHasChanged();
-    }
-
-    private async Task SaveData(ProductDto dto)
-    {
-        var result = Result.Failure(ErrorCodes.NoDataFound);
-
-        if (dto.Id == 0)
-        {
-            result = await _productApi.AddProduct(dto);
-        }
-        else
-        {
-            result = await _productApi.UpdateProduct(dto);
-        }
-
-        if (!result.IsSuccess)
-        {
-            _errorMessage = result.ErrorCode.ToUserMessage();
+            this.isLoading = true;
+            await this.LoadData(this.Id);
+            this.isLoading = false;
         }
     }
+
+    private async Task<bool> SaveData(ProductDto dto)
+        => await this.ExecuteActionAsync(() =>
+        dto.Id == 0 ? this.productApi.AddProduct(dto) : this.productApi.UpdateProduct(dto));
 
     private async Task OpenCategoryEditorModal()
-    {
-        await _categoryModal.ShowAsync<CategoryEditor>(title: "Kategorien verwalten");
-    }
+        => await this.categoryModal.ShowAsync<CategoryEditor>(title: "Kategorien verwalten");
 
     private async Task CancelEdit()
-    {
-        await OnClose.InvokeAsync();
-    }
+        => await this.OnClose.InvokeAsync();
 
     private async Task LoadData(ProductId id)
     {
-        try
-        {
-            var result = await _productApi.LoadProduct(id);
+        var product = await this.ExecuteLoadAsync(() => this.productApi.LoadProduct(id));
 
-            if (!result.IsSuccess)
-            {
-                _errorMessage = result.ErrorCode.ToUserMessage();
-            }
-            else
-            {
-                if (result.Data != null)
-                {
-                    _product = result.Data;
-                    _editProductName = _product.Name;
-                    _editProductPrice = _product.Price;
-
-                    _editCategoryId = _product.CategoryId;
-                    if (_product.Description != null)
-                    {
-                        _editShortSummary = _product.Description.ShortSummary;
-                        _editDetailedText = _product.Description.DetailedText;
-                        _editWeight = _product.Description.WeightInGrams;
-                    }
-                }
-                else
-                {
-                    _errorMessage = "Produkt nicht gefunden.";
-                }
-            }
-        }
-        catch (Exception ex)
+        if (product != null)
         {
-            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+            this.product = product;
+            this.editProductName = this.product.Name;
+            this.editProductPrice = this.product.Price;
+            this.editCategoryId = this.product.CategoryId;
+
+            if (this.product.Description != null)
+            {
+                this.editShortSummary = this.product.Description.ShortSummary;
+                this.editDetailedText = this.product.Description.DetailedText;
+                this.editWeight = this.product.Description.WeightInGrams;
+            }
         }
     }
 
     private async Task HandleSave()
     {
-        _errorMessage = string.Empty;
-        if (_product != null)
+        if (this.product != null)
         {
             var newDescription = new Shared.Models.Description(
-                _product.DescriptionId,
-                _editShortSummary,
-                _editDetailedText,
-                _editWeight);
+                this.product.DescriptionId,
+                this.editShortSummary,
+                this.editDetailedText,
+                this.editWeight);
 
-            var updatedProduct = _product with
+            var updatedProduct = this.product with
             {
-                Name = _editProductName,
-                Price = _editProductPrice,
-                CategoryId = _editCategoryId,
+                Name = this.editProductName,
+                Price = this.editProductPrice,
+                CategoryId = this.editCategoryId,
                 Category = null,
                 Description = newDescription,
             };
 
-            await SaveData(updatedProduct);
+            bool isSuccess = await this.SaveData(updatedProduct);
 
-            if (string.IsNullOrEmpty(_errorMessage))
+            if (isSuccess)
             {
-                await OnClose.InvokeAsync();
+                await this.OnClose.InvokeAsync();
             }
         }
     }
 
     private void HandleCategoryChanged(CategoryId newId)
-    {
-        _editCategoryId = newId;
-    }
+        => this.editCategoryId = newId;
 
     private async Task OnCategoryModalClosed()
     {
-        if (_categorySelecter != null)
+        if (this.categorySelecter != null)
         {
-            await _categorySelecter.LoadData();
+            await this.categorySelecter.LoadData();
         }
     }
 }

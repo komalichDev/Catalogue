@@ -12,11 +12,19 @@ builder.Services.AddScoped<IHttpProductApi, HttpProductApi>();
 
 builder.Services.AddHttpClient();
 
+var apiBaseAddress = builder.Configuration["ApiBaseAddress"];
+
+if (string.IsNullOrEmpty(apiBaseAddress))
+{
+    apiBaseAddress = builder.HostEnvironment.BaseAddress;
+}
+
 builder.Services.AddScoped(sp =>
 {
     var factory = sp.GetRequiredService<IHttpClientFactory>();
     var client = factory.CreateClient();
-    client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+
+    client.BaseAddress = new Uri(apiBaseAddress);
     return client;
 });
 

@@ -11,7 +11,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await QueryWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteGetRequests<List<ProductDto>>($"https://localhost:7053/api/Product");
+                    var result = await executer.ExecuteGetRequests<List<ProductDto>>(ApiRoutes.Product.Base);
                     return result.IsSuccess ? result.Data : null;
                 },
             ErrorCodes.FailedConnection);
@@ -20,7 +20,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await QueryWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteGetRequests<ProductDto>($"https://localhost:7053/api/Product/Product/{id.Value}");
+                    var result = await executer.ExecuteGetRequests<ProductDto>(ApiRoutes.Product.ById(id.Value));
                     return result.IsSuccess ? result.Data : null;
                 },
             ErrorCodes.FailedConnection);
@@ -29,7 +29,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await QueryWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteGetRequests<List<Category>>($"https://localhost:7053/api/Product/Category/");
+                    var result = await executer.ExecuteGetRequests<List<Category>>(ApiRoutes.Category.Base);
                     return result.IsSuccess ? result.Data : null;
                 },
             ErrorCodes.FailedConnection);
@@ -38,7 +38,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await QueryWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteGetRequests<Category>($"https://localhost:7053/api/Product/Category/{category.Id.Value}");
+                    var result = await executer.ExecuteGetRequests<Category>(ApiRoutes.Category.ById(category.Id.Value));
                     return result.IsSuccess ? result.Data : null;
                 },
             ErrorCodes.FailedConnection);
@@ -47,7 +47,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await QueryWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteGetRequests<List<Description>>($"https://localhost:7053/api/Product/Description/");
+                    var result = await executer.ExecuteGetRequests<List<Description>>(ApiRoutes.Description.Base);
                     return result.IsSuccess ? result.Data : null;
                 },
             ErrorCodes.FailedConnection);
@@ -56,7 +56,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await QueryWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteGetRequests<Description>($"https://localhost:7053/api/Product/Description/{id.Value}");
+                    var result = await executer.ExecuteGetRequests<Description>(ApiRoutes.Description.ById(id.Value));
                     return result.IsSuccess ? result.Data : null;
                 },
             ErrorCodes.FailedConnection);
@@ -65,7 +65,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecutePutRequest<ProductDto>($"https://localhost:7053/api/Product", product);
+                    var result = await executer.ExecutePutRequest<ProductDto>(ApiRoutes.Product.Base, product);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataUpdateFailed);
@@ -74,7 +74,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecutePutRequest<Category>($"https://localhost:7053/api/Product/Category/", category);
+                    var result = await executer.ExecutePutRequest<Category>(ApiRoutes.Category.Base, category);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataUpdateFailed);
@@ -83,7 +83,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecutePostRequest<ProductDto>($"https://localhost:7053/api/Product/", product);
+                    var result = await executer.ExecutePostRequest<ProductDto>(ApiRoutes.Product.Base, product);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataCreationFailed);
@@ -92,7 +92,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecutePostRequest<Category>($"https://localhost:7053/api/Product/Category/", category);
+                    var result = await executer.ExecutePostRequest<Category>(ApiRoutes.Category.Base, category);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataCreationFailed);
@@ -101,7 +101,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteDeleteRequest<ProductId>($"https://localhost:7053/api/Product", product);
+                    var result = await executer.ExecuteDeleteRequest<ProductId>(ApiRoutes.Product.Base, product);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataDeletionFailed);
@@ -110,7 +110,7 @@ public class HttpProductApi(IHttpRequestExecuter executer) : IHttpProductApi
         => await OperationWrapper(
             async () =>
                 {
-                    var result = await executer.ExecuteDeleteRequest<CategoryId>($"https://localhost:7053/api/Product/Category", category);
+                    var result = await executer.ExecuteDeleteRequest<CategoryId>(ApiRoutes.Category.Base, category);
                     return result.IsSuccess;
                 },
             ErrorCodes.DataDeletionFailed);

@@ -1,84 +1,72 @@
 ﻿using BlazorBootstrap;
-using Client.Helpers;
 using Client.Services;
+using Common.Exception;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
 
 namespace Client.Pages;
 
-public partial class Component
+public partial class Component : BaseComponent
 {
-    private QueryResult<List<ProductDto>>? _produktListe;
-    private string _errorMessage = string.Empty;
-    private ProductDto? _selectedProduct = null;
-    private Modal _productModal = default!;
+    private QueryResult<List<ProductDto>>? produktListe;
+    private ProductDto? selectedProduct = null;
+    private Modal productModal = default!;
 
     [Inject]
     private IHttpProductApi ProductApi { get; set; } = null!;
 
     public async Task LoadData()
     {
-        try
-        {
-            _produktListe = await ProductApi.LoadProducts();
-            if (!_produktListe.IsSuccess)
-            {
-                _errorMessage = ErrorMessageMapper.ToUserMessage(_produktListe.ErrorCode);
-            }
+        var data = await this.ExecuteLoadAsync(() => this.ProductApi.LoadProducts());
 
-            StateHasChanged();
-        }
-        catch (Exception ex)
+        if (data != null)
         {
-            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+            this.produktListe = QueryResult<List<ProductDto>>.Success(data);
+        }
+        else if (string.IsNullOrEmpty(this._errorMessage))
+        {
+            this.produktListe = QueryResult<List<ProductDto>>.Failure(ErrorCodes.NoDataFound);
         }
     }
 
     protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
+        => await this.LoadData();
 
     private async Task DeleteProduct(Shared.Models.ProductDto product)
     {
-        var result = await ProductApi.DeleteProduct(product.Id);
-        if (!result.IsSuccess)
+        bool success = await this.ExecuteActionAsync(() => this.ProductApi.DeleteProduct(product.Id));
+
+        if (success)
         {
-            _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
-        }
-        else
-        {
-            await LoadData();
+            await this.LoadData();
         }
 
-        if (_selectedProduct == product)
+        if (this.selectedProduct == product)
         {
-            _selectedProduct = null;
+            this.selectedProduct = null;
         }
-
-        StateHasChanged();
     }
 
     private async Task ShowDetailedInfo(Shared.Models.ProductDto product)
     {
-        _selectedProduct = product;
+        this.selectedProduct = product;
 
         var parameters = new Dictionary<string, object>
         {
-            { "Id", _selectedProduct.Id },
-            { "OnClose", EventCallback.Factory.Create(this, HandleEditorClosed) },
+            { "Id", this.selectedProduct.Id },
+            { "OnClose", EventCallback.Factory.Create(this, this.HandleEditorClosed) },
         };
 
-        await _productModal.ShowAsync<ProductEditor>(
+        await this.productModal.ShowAsync<ProductEditor>(
             title: "Produkt bearbeiten",
             parameters: parameters);
     }
 
     private async void HandleEditorClosed()
     {
-        await _productModal.HideAsync();
-        _selectedProduct = null;
-        await LoadData();
+        await this.productModal.HideAsync();
+        this.selectedProduct = null;
+        await this.LoadData();
     }
 }

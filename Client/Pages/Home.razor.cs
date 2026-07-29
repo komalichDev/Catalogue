@@ -7,13 +7,13 @@ namespace Client.Pages;
 
 public partial class Home
 {
-    private ProductDto? _newProduct;
-    private Modal _productModal = default!;
-    private Component _productComponent = default!;
+    private ProductDto? newProduct;
+    private Modal productModal = default!;
+    private Component productComponent = default!;
 
     private async Task OpenProductEditorAsync()
     {
-        _newProduct = new ProductDto(
+        this.newProduct = new ProductDto(
                     Id: ProductId.From(0),
                     Name: string.Empty,
                     Price: 0.0,
@@ -25,21 +25,21 @@ public partial class Home
         var parameters = new Dictionary<string, object>
         {
             { "Id", ProductId.From(0) },
-            { "OnClose", EventCallback.Factory.Create(this, CloseEditor) },
+            { "OnClose", EventCallback.Factory.Create(this, this.CloseEditor) },
         };
 
-        await _productModal.ShowAsync<ProductEditor>(
+        await this.productModal.ShowAsync<ProductEditor>(
             title: "Neues Produkt erstellen",
             parameters: parameters);
     }
 
     private async Task CloseEditor()
     {
-        await _productModal.HideAsync();
-        _newProduct = null;
-        if (_productComponent != null)
+        await this.productModal.HideAsync();
+        this.newProduct = null;
+        if (this.productComponent != null)
         {
-            await _productComponent.LoadData();
+            await this.productComponent.LoadData();
         }
     }
 }

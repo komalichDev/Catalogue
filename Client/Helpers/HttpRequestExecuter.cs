@@ -6,105 +6,68 @@ namespace Client.Helpers;
 
 public class HttpRequestExecuter(HttpClient http) : IHttpRequestExecuter
 {
-
-    public async Task<QueryResult<T>> ExecuteGetRequests<T>(string url)
+    public Task<QueryResult<T>> ExecuteGetRequests<T>(string url)
         where T : class
+            => ExecuteSafelyAsync(
+                async () =>
+                    {
+                        var value = await http.GetFromJsonAsync<QueryResult<T>>(url);
+                        return value ?? QueryResult<T>.Failure(ErrorCodes.NetworkError);
+                    },
+                QueryResult<T>.Failure(ErrorCodes.NetworkError));
+
+    public Task<Result> ExecutePostRequest<T>(string url, T data)
+        => ExecuteSendRequestAsync(() => http.PostAsJsonAsync(url, data));
+
+    public Task<Result> ExecutePutRequest<T>(string url, T data)
+        => ExecuteSendRequestAsync(() => http.PutAsJsonAsync(url, data));
+
+    public Task<Result> ExecuteDeleteRequest<T>(string url, T id)
+        => ExecuteSafelyAsync(
+            async () =>
+                {
+                    var value = await http.DeleteFromJsonAsync<Result>($"{url}/{id}");
+                    if (value == null)
+                    {
+                        return Result.Failure(ErrorCodes.NetworkError);
+                    }
+
+                    return value.IsSuccess ? Result.Success() : Result.Failure(value.ErrorCode);
+                },
+            Result.Failure(ErrorCodes.NetworkError));
+
+    private Task<Result> ExecuteSendRequestAsync(Func<Task<HttpResponseMessage>> requestAction)
     {
-        try
-        {
-            var value = await http.GetFromJsonAsync<QueryResult<T>>(url);
-            return value ?? QueryResult<T>.Failure(ErrorCodes.NetworkError);
-        }
-        catch (HttpRequestException ex)
-        {
-            Console.WriteLine($"Netzwerkfehler: {ex.Message}");
-            return QueryResult<T>.Failure(ErrorCodes.NetworkError);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Allgemeiner Fehler: {ex.ToString()}");
-            return QueryResult<T>.Failure(ErrorCodes.NetworkError);
-        }
+        return ExecuteSafelyAsync(
+            async () =>
+                {
+                    using var response = await requestAction();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var serverResult = await response.Content.ReadFromJsonAsync<Result>();
+                        return serverResult ?? Result.Failure(ErrorCodes.NetworkError);
+                    }
+
+                    return Result.Failure(ErrorCodes.NetworkError);
+                },
+            Result.Failure(ErrorCodes.NetworkError));
     }
 
-    public async Task<Result> ExecutePostRequest<T>(string url, T data)
+    private async Task<TResult> ExecuteSafelyAsync<TResult>(Func<Task<TResult>> action, TResult fallback)
     {
         try
         {
-            using var response = await http.PostAsJsonAsync(url, data);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var serverResult = await response.Content.ReadFromJsonAsync<Result>();
-
-                return serverResult ?? Result.Failure(ErrorCodes.NetworkError);
-            }
-            else
-            {
-                return Result.Failure(ErrorCodes.NetworkError);
-            }
+            return await action();
         }
         catch (HttpRequestException ex)
         {
             Console.WriteLine($"Netzwerkfehler: {ex.Message}");
-            return Result.Failure(ErrorCodes.NetworkError);
+            return fallback;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Allgemeiner Fehler: {ex.ToString()}");
-            return Result.Failure(ErrorCodes.NetworkError);
-        }
-    }
-
-    public async Task<Result> ExecutePutRequest<T>(string url, T data)
-    {
-        try
-        {
-            using var response = await http.PutAsJsonAsync(url, data);
-            if (response.IsSuccessStatusCode)
-            {
-                var serverResult = await response.Content.ReadFromJsonAsync<Result>();
-
-                return serverResult ?? Result.Failure(ErrorCodes.NetworkError);
-            }
-            else
-            {
-                return Result.Failure(ErrorCodes.NetworkError);
-            }
-        }
-        catch (HttpRequestException ex)
-        {
-            Console.WriteLine($"Netzwerkfehler: {ex.Message}");
-            return Result.Failure(ErrorCodes.NetworkError);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Allgemeiner Fehler: {ex.ToString()}");
-            return Result.Failure(ErrorCodes.NetworkError);
-        }
-    }
-
-    public async Task<Result> ExecuteDeleteRequest<T>(string url, T id)
-    {
-        try
-        {
-            var value = await http.DeleteFromJsonAsync<Result>(url + $"/{id}");
-            if (value == null)
-            {
-                return Result.Failure(ErrorCodes.NetworkError);
-            }
-
-            return value.IsSuccess ? Result.Success() : Result.Failure(value.ErrorCode);
-        }
-        catch (HttpRequestException ex)
-        {
-            Console.WriteLine($"Netzwerkfehler: {ex.Message}");
-            return Result.Failure(ErrorCodes.NetworkError);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Allgemeiner Fehler: {ex.ToString()}");
-            return Result.Failure(ErrorCodes.NetworkError);
+            return fallback;
         }
     }
 }

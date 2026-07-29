@@ -1,18 +1,13 @@
-﻿using Client.Helpers;
-using Client.Services;
+﻿using Client.Services;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
 
 namespace Client.Pages;
 
-public partial class CategorySelecter
+public partial class CategorySelecter(IHttpProductApi productApi) : BaseComponent
 {
-    private readonly IHttpProductApi _productApi;
-    private string _errorMessage = string.Empty;
-
-    public CategorySelecter(IHttpProductApi productApi)
-        => _productApi = productApi;
+    private readonly IHttpProductApi productApi = productApi;
 
     [Parameter]
     public CategoryId Id { get; set; }
@@ -27,40 +22,22 @@ public partial class CategorySelecter
 
     public async Task LoadData()
     {
-        try
+        var data = await this.ExecuteLoadAsync(() => this.productApi.LoadCategories());
+        if (data != null)
         {
-            var result = await _productApi.LoadCategories();
-            if (!result.IsSuccess)
-            {
-                _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
-            }
-            else
-            {
-                if (result.Data != null)
-                {
-                    Categories = result.Data;
-                }
-            }
-
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+            this.Categories = data;
         }
     }
 
     protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
+        => await this.LoadData();
 
     private async Task OnCategoryChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int newId))
         {
             var categoryId = CategoryId.From(newId);
-            await IdChanged.InvokeAsync(categoryId);
+            await this.IdChanged.InvokeAsync(categoryId);
         }
     }
 }

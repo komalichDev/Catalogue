@@ -1,42 +1,36 @@
-﻿using Client.Helpers;
-using Client.Services;
+﻿using Client.Services;
+using Common.Exception;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
 
 namespace Client.Pages;
 
-public partial class CategoryEditor
+public partial class CategoryEditor(IHttpProductApi productApi) : BaseComponent
 {
-    private readonly IHttpProductApi _productApi;
-    private QueryResult<List<Category>>? _categoryListe;
-    private string _errorMessage = string.Empty;
-    private Category? _selectedCategory = null;
-    private string _editName = string.Empty;
-
-    public CategoryEditor(IHttpProductApi productApi)
-    {
-        _productApi = productApi;
-    }
+    private readonly IHttpProductApi productApi = productApi;
+    private QueryResult<List<Category>>? categoryListe;
+    private Category? selectedCategory = null;
+    private string editName = string.Empty;
 
     [Inject]
     protected HttpClient Http { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadData();
+        await this.LoadData();
     }
 
     private void ToggleExpand(Category category)
     {
-        if (_selectedCategory == category)
+        if (this.selectedCategory == category)
         {
-            _selectedCategory = null;
+            this.selectedCategory = null;
         }
         else
         {
-            _selectedCategory = category;
-            _editName = category.Name;
+            this.selectedCategory = category;
+            this.editName = category.Name;
         }
     }
 
@@ -44,75 +38,57 @@ public partial class CategoryEditor
     {
         var newCategory = new Category(CategoryId.From(0), string.Empty);
 
-        if (_categoryListe?.Data != null)
+        if (this.categoryListe?.Data != null)
         {
-            _categoryListe.Data.Insert(0, newCategory);
-            _selectedCategory = newCategory;
-            _editName = string.Empty;
+            this.categoryListe.Data.Insert(0, newCategory);
+            this.selectedCategory = newCategory;
+            this.editName = string.Empty;
         }
         else
         {
-            _categoryListe = QueryResult<List<Category>>.Success(new List<Category>());
+            this.categoryListe = QueryResult<List<Category>>.Success(new List<Category>());
         }
     }
 
     private async Task SaveAndClose(Category category)
     {
-        var updatedCategory = new Category(category.Id, _editName);
-        Result result;
+        var updatedCategory = new Category(category.Id, this.editName);
 
-        if (category.Id.Value == 0)
+        bool success = await this.ExecuteActionAsync(() =>
+            category.Id.Value == 0 ? this.productApi.AddCategory(updatedCategory) : this.productApi.UpdateCategory(updatedCategory));
+
+        if (success)
         {
-            result = await _productApi.AddCategory(updatedCategory);
+            await this.LoadData();
+            this.selectedCategory = null;
         }
-        else
-        {
-            result = await _productApi.UpdateCategory(updatedCategory);
-        }
-
-        if (!result.IsSuccess)
-        {
-            _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
-            return;
-        }
-
-        await LoadData();
-
-        _selectedCategory = null;
     }
 
     private async Task DeleteCategory(Category category)
     {
-        var result = await _productApi.DeleteCategory(category.Id);
-        if (!result.IsSuccess)
-        {
-            _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
-        }
-        else
-        {
-            await LoadData();
-            StateHasChanged();
-        }
+        bool success = await this.ExecuteActionAsync(() => this.productApi.DeleteCategory(category.Id));
 
-        if (_selectedCategory == category)
+        if (success)
         {
-            _selectedCategory = null;
+            await this.LoadData();
+            if (this.selectedCategory == category)
+            {
+                this.selectedCategory = null;
+            }
         }
     }
 
     private async Task LoadData()
     {
-        try
+        var data = await this.ExecuteLoadAsync(() => this.productApi.LoadCategories());
+
+        if (data != null)
         {
-            _categoryListe = await _productApi.LoadCategories();
-            if (!_categoryListe.IsSuccess)
-            {
-                _errorMessage = ErrorMessageMapper.ToUserMessage(_categoryListe.ErrorCode);
-            }
+            this.categoryListe = QueryResult<List<Category>>.Success(data);
         }
-        catch (Exception ex)
+        else if (!string.IsNullOrEmpty(this._errorMessage))
         {
-            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+            this.categoryListe = QueryResult<List<Category>>.Failure(ErrorCodes.FailedConnection);
         }
     }
 }

@@ -3,15 +3,16 @@
 @using Common.Exception;
 @using Common.Types;
 @using Helpers;
+@inherits BaseComponent
 
 <h3 id="titel">Unsere Produkte</h3>
 
-@if (_produktListe == null) {
+@if (produktListe == null) {
     <p><em>Daten werden vom Server geladen... Bitte warten.</em></p>
 } else {
     <div class="produkt-grid">
-        @if (_produktListe.IsSuccess) {
-            @foreach (var produkt in _produktListe.Data ?? []) {
+        @if (produktListe.IsSuccess) {
+            @foreach (var produkt in produktListe.Data ?? []) {
                 <div @key="produkt.Id" class="produkt-karte" @onclick="() => ShowDetailedInfo(produkt)">
                     <h4>@produkt.Name</h4>
                     <p>Preis: @produkt.Price CHF</p>
@@ -19,9 +20,9 @@
                 </div>
             }
         } else {
-            <ErrorPopup IsVisible="true" ErrorMessage="@ErrorMessageMapper.ToUserMessage(_produktListe.ErrorCode)" />
+            <ErrorPopup IsVisible="true" ErrorMessage="@ErrorMessageMapper.ToUserMessage(produktListe.ErrorCode)" />
         }
     </div>
 }
 
-<Modal @ref="_productModal" Size="ModalSize.Large" />
+<Modal @ref="productModal" Size="ModalSize.Large" />

@@ -45,196 +45,63 @@ public class Interactor : IInteractor
 
     public async Task<Result> CreateProduct(ProductDto product)
     {
-        // ToDo: Refactoring
-        var categoryCheck = await _gateway.GetCategoryById(product.CategoryId);
-        if (!categoryCheck.IsSuccess || categoryCheck.Data == null)
+        var category = await GetCategoryOrNullAsync(product.CategoryId);
+        if (category == null)
         {
             return Result.Failure(ErrorCodes.CategoryNotFound);
         }
 
-        var currentCategory = categoryCheck.Data;
-
-        var convertedProduct = ProductDtoConverter.Convert(product);
-
-        if (await IdenticalDataPresent(convertedProduct))
+        var prepResult = await ValidateAndCreateDescriptionAsync(product);
+        if (!prepResult.IsSuccess)
         {
-            return Result.Failure(ErrorCodes.ProductAlreadyExists);
+            return prepResult;
         }
 
-        if (await IdenticalDataPresent(convertedProduct.Description))
-        {
-            return Result.Failure(ErrorCodes.DescriptionAlreadyExists);
-        }
-
-        if (product.Description != null)
-        {
-            var descriptionResult = await _gateway.CreateDescription(ProductDtoConverter.Convert(product.Description));
-            if (!descriptionResult.IsSuccess)
-            {
-                return Result.Failure(ErrorCodes.DescriptionCreationFailed);
-            }
-        }
-
-        var descriptions = await GetAllDescriptions();
-
-        if (descriptions.Data == null || product.Description == null)
+        var addedDescription = await RetrieveNewlyCreatedDescriptionAsync(product.Description);
+        if (product.Description != null && addedDescription == null)
         {
             return Result.Failure(ErrorCodes.DescriptionCreationFailed);
         }
 
-        List<Description> sortedDescriptions = descriptions.Data.OrderBy(c => c.Id).ToList();
+        var newProduct = BuildProductEntity(product, addedDescription, category);
 
-        var addedDescription = GetIdOfNewlyCreatedDescription(sortedDescriptions, product.Description);
-        var newProduct = new Entity.Product(
-                product.Id,
-                product.Name,
-                product.Price,
-                DescriptionId.From(addedDescription.Id.Value),
-                ProductDtoConverter.Convert(addedDescription),
-                CategoryId.From(product.CategoryId.Value),
-                new Entity.Category(CategoryId.From(product.CategoryId.Value), string.Empty));
-
-        var productResult = await _gateway.CreateProduct(newProduct);
-        if (!productResult.IsSuccess)
-        {
-            var deletionStatus = await _gateway.DeleteDescription(addedDescription.Id);
-            if (!deletionStatus.IsSuccess)
-            {
-                return Result.Failure(ErrorCodes.DataDeletionAndCreationOfProductFailded);
-            }
-
-            return Result.Failure(ErrorCodes.ProductCreationFailed);
-        }
-
-        return Result.Success();
+        return await SaveProductWithRollbackAsync(newProduct, addedDescription?.Id);
     }
 
     public async Task<Result> CreateCategory(Category category)
-    {
-        var result = await _gateway.GetCategoryById(category.Id);
-        if (!result.IsSuccess)
-        {
-            if (await IdenticalDataPresent(ProductDtoConverter.Convert(category)))
-            {
-                return Result.Failure(ErrorCodes.CategoryAlreadyExists);
-            }
-
-            if (category != null)
-            {
-                var categoryResult = await _gateway.CreateCategory(ProductDtoConverter.Convert(category));
-                if (!categoryResult.IsSuccess)
-                {
-                    return Result.Failure(ErrorCodes.CategoryCreationFailed);
-                }
-            }
-        }
-
-        return Result.Success();
-    }
+            => (await _gateway.GetCategoryById(category.Id)).IsSuccess
+                ? Result.Success()
+                : await ExecuteSequentialAsync(
+                    async () => await IdenticalDataPresent(ProductDtoConverter.Convert(category)) ? Result.Failure(ErrorCodes.CategoryAlreadyExists) : Result.Success(),
+                    () => ExecuteIfNotNullAsync(category, c => _gateway.CreateCategory(ProductDtoConverter.Convert(c)), ErrorCodes.CategoryCreationFailed));
 
     public async Task<Result> UpdateProduct(ProductDto product)
-    {
-        if (product.Category != null)
-        {
-            var categoryResult = await _gateway.UpdateCategory(ProductDtoConverter.Convert(product.Category));
-            if (!categoryResult.IsSuccess)
-            {
-                return Result.Failure(ErrorCodes.CategoryUpdateFailed);
-            }
-        }
-
-        if (product.Description != null)
-        {
-            var descriptionResult = await _gateway.UpdateDescription(ProductDtoConverter.Convert(product.Description));
-            if (!descriptionResult.IsSuccess)
-            {
-                return Result.Failure(ErrorCodes.DescriptionUpdateFailed);
-            }
-        }
-
-        if (product != null)
-        {
-            var productResult = await _gateway.UpdateProduct(ProductDtoConverter.Convert(product));
-            if (!productResult.IsSuccess)
-            {
-                return Result.Failure(ErrorCodes.ProductUpdateFailed);
-            }
-        }
-
-        return Result.Success();
-    }
+            => await ExecuteSequentialAsync(
+                () => ExecuteIfNotNullAsync(product?.Category, c => _gateway.UpdateCategory(ProductDtoConverter.Convert(c)), ErrorCodes.CategoryUpdateFailed),
+                () => ExecuteIfNotNullAsync(product?.Description, d => _gateway.UpdateDescription(ProductDtoConverter.Convert(d)), ErrorCodes.DescriptionUpdateFailed),
+                () => ExecuteIfNotNullAsync(product, p => _gateway.UpdateProduct(ProductDtoConverter.Convert(p)), ErrorCodes.ProductUpdateFailed));
 
     public async Task<Result> UpdateCategory(Category category)
-    {
-        if (category != null)
-        {
-            var categoryResult = await _gateway.UpdateCategory(ProductDtoConverter.Convert(category));
-            if (!categoryResult.IsSuccess)
-            {
-                return Result.Failure(ErrorCodes.CategoryUpdateFailed);
-            }
-        }
-
-        return Result.Success();
-    }
+            => await ExecuteIfNotNullAsync(category, c => _gateway.UpdateCategory(ProductDtoConverter.Convert(c)), ErrorCodes.CategoryUpdateFailed);
 
     public async Task<Result> DeleteProduct(ProductId productId)
     {
-        var product = await _gateway.GetProductById(productId);
-        var result = await _gateway.DeleteProduct(productId);
-        if (!result.IsSuccess)
-        {
-            return Result.Failure(ErrorCodes.ProductDeletionFailed);
-        }
+        var product = (await _gateway.GetProductById(productId)).Data;
 
-        if (product?.Data != null)
-        {
-            if (product.Data.Description != null)
-            {
-                var id = ProductDtoConverter.Convert(product.Data.Description).Id;
-                var resultDescription = await _gateway.DeleteDescription(id);
-                if (!resultDescription.IsSuccess)
-                {
-                    return Result.Failure(ErrorCodes.DescriptionDeletionFailed);
-                }
-            }
-        }
-
-        return Result.Success();
+        return await ExecuteSequentialAsync(
+            () => ExecuteActionAsync(() => _gateway.DeleteProduct(productId), ErrorCodes.ProductDeletionFailed),
+            () => ExecuteIfNotNullAsync(product?.Description, d => _gateway.DeleteDescription(ProductDtoConverter.Convert(d).Id), ErrorCodes.DescriptionDeletionFailed));
     }
 
     public async Task<Result> DeleteCategory(CategoryId category)
-    {
-        if (await IsCategoryInUse(category))
-        {
-            return Result.Failure(ErrorCodes.CategoryInUse);
-        }
-
-        var result = await _gateway.DeleteCategory(category);
-        if (!result.IsSuccess)
-        {
-            return Result.Failure(ErrorCodes.CategoryDeletionFailed);
-        }
-
-        return Result.Success();
-    }
+            => await IsCategoryInUse(category)
+                ? Result.Failure(ErrorCodes.CategoryInUse)
+                : await ExecuteActionAsync(() => _gateway.DeleteCategory(category), ErrorCodes.CategoryDeletionFailed);
 
     private async Task<bool> IsCategoryInUse(CategoryId id)
     {
         var products = await _gateway.GetAllProducts();
-
-        if (products.IsSuccess && products.Data != null)
-        {
-            foreach (var product in products.Data)
-            {
-                if (product.CategoryId == id)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return products.IsSuccess && products.Data?.Any(product => product.CategoryId == id) == true;
     }
 
     private async Task<QueryResult<TResult>> ExecuteQueryAsync<TData, TResult>(
@@ -248,101 +115,145 @@ public class Interactor : IInteractor
 
         if (!result.IsSuccess)
         {
-            return (QueryResult<TResult>)QueryResult<TResult>.Failure(result.ErrorCode);
+            return QueryResult<TResult>.Failure(result.ErrorCode);
         }
 
         var data = result.Data ?? fallbackData;
+
+        return data != null
+            ? QueryResult<TResult>.Success(converter(data))
+            : QueryResult<TResult>.Failure(result.ErrorCode);
+    }
+
+    private async Task<Entity.Category?> GetCategoryOrNullAsync(CategoryId categoryId)
+    {
+        var categoryCheck = await _gateway.GetCategoryById(categoryId);
+        return categoryCheck.IsSuccess ? categoryCheck.Data : null;
+    }
+
+    private async Task<Result> ValidateAndCreateDescriptionAsync(ProductDto product)
+    {
+        var convertedProduct = ProductDtoConverter.Convert(product);
+        return await ExecuteSequentialAsync(
+            async () => await IdenticalDataPresent(convertedProduct) ? Result.Failure(ErrorCodes.ProductAlreadyExists) : Result.Success(),
+            async () => await IdenticalDataPresent(convertedProduct.Description) ? Result.Failure(ErrorCodes.DescriptionAlreadyExists) : Result.Success(),
+            () => ExecuteIfNotNullAsync(product.Description, d => _gateway.CreateDescription(ProductDtoConverter.Convert(d)), ErrorCodes.DescriptionCreationFailed));
+    }
+
+    private Entity.Product BuildProductEntity(ProductDto product, Description? addedDescription, Entity.Category category)
+    {
+        var descId = addedDescription != null ? DescriptionId.From(addedDescription.Id.Value) : DescriptionId.From(0);
+        var convertedDesc = addedDescription != null ? ProductDtoConverter.Convert(addedDescription) : null;
+
+        return new Entity.Product(
+            product.Id,
+            product.Name,
+            product.Price,
+            descId,
+            convertedDesc!,
+            CategoryId.From(product.CategoryId.Value),
+            new Entity.Category(CategoryId.From(category.Id.Value), category.Name));
+    }
+
+    private async Task<Result> SaveProductWithRollbackAsync(Entity.Product newProduct, DescriptionId? createdDescriptionId)
+    {
+        var productResult = await _gateway.CreateProduct(newProduct);
+        if (productResult.IsSuccess)
+        {
+            return Result.Success();
+        }
+
+        if (createdDescriptionId != null)
+        {
+            var rollback = await _gateway.DeleteDescription(createdDescriptionId.Value);
+            if (!rollback.IsSuccess)
+            {
+                return Result.Failure(ErrorCodes.DataDeletionAndCreationOfProductFailded);
+            }
+        }
+
+        return Result.Failure(ErrorCodes.ProductCreationFailed);
+    }
+
+    private async Task<Result> ExecuteSequentialAsync(params Func<Task<Result>>[] operations)
+    {
+        foreach (var operation in operations)
+        {
+            var result = await operation();
+            if (!result.IsSuccess)
+            {
+                return result;
+            }
+        }
+
+        return Result.Success();
+    }
+
+    private async Task<Result> ExecuteIfNotNullAsync<T>(T? data, Func<T, Task<Result>> action, ErrorCodes failureCode) where T : class
+    {
         if (data == null)
         {
-            return (QueryResult<TResult>)QueryResult<TResult>.Failure(result.ErrorCode);
+            return Result.Success();
         }
 
-        return QueryResult<TResult>.Success(converter(data));
+        var result = await action(data);
+        return result.IsSuccess ? Result.Success() : Result.Failure(failureCode);
     }
 
-    private Description GetIdOfNewlyCreatedDescription(List<Description> sortedDescriptionsById, Description givenDescription)
+    private async Task<Result> ExecuteActionAsync(Func<Task<Result>> action, ErrorCodes failureCode)
     {
-        foreach (var description in sortedDescriptionsById)
-        {
-            if (description.DetailedText == givenDescription.DetailedText && description.ShortSummary == givenDescription.ShortSummary && description.WeightInGrams == givenDescription.WeightInGrams)
-            {
-                return description;
-            }
-        }
-
-        return givenDescription;
+        var result = await action();
+        return result.IsSuccess ? Result.Success() : Result.Failure(failureCode);
     }
 
-    private Category GetIdOfNewlyCreatedCategory(List<Category> sortedCategoriesById, Category givenCategory)
+    private async Task<Description?> RetrieveNewlyCreatedDescriptionAsync(Shared.Models.Description? originalDescription)
     {
-        foreach (var category in sortedCategoriesById)
+        if (originalDescription == null)
         {
-            if (category.Name == givenCategory.Name)
-            {
-                return category;
-            }
+            return null;
         }
 
-        return givenCategory;
+        var descriptions = await GetAllDescriptions();
+        if (descriptions.Data == null)
+        {
+            return null;
+        }
+
+        return descriptions.Data
+            .OrderBy(c => c.Id.Value)
+            .FirstOrDefault(desc =>
+                desc.DetailedText == originalDescription.DetailedText &&
+                desc.ShortSummary == originalDescription.ShortSummary &&
+                desc.WeightInGrams == originalDescription.WeightInGrams)
+            ?? originalDescription;
     }
 
     private async Task<bool> IdenticalDataPresent(Entity.Product givenProduct)
-    {
-        var results = await _gateway.GetAllProducts();
-        if (!results.IsSuccess || results.Data == null)
-        {
-            return true;
-        }
-
-        var products = results.Data;
-        foreach (var product in products)
-        {
-            if (givenProduct.Name == product.Name && givenProduct.Price == product.Price)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+            => await CheckIdenticalDataAsync(
+                () => _gateway.GetAllProducts(),
+                product => product.Name == givenProduct.Name && product.Price == givenProduct.Price);
 
     private async Task<bool> IdenticalDataPresent(Entity.Category givenCategory)
+        => await CheckIdenticalDataAsync(
+            () => _gateway.GetAllCategories(),
+            category => category.Name == givenCategory.Name);
+
+    private async Task<bool> IdenticalDataPresent(Entity.Description givenDesc)
+        => await CheckIdenticalDataAsync(
+            () => _gateway.GetAllDescriptions(),
+            desc => desc.WeightInGrams == givenDesc.WeightInGrams &&
+                    desc.DetailedText == givenDesc.DetailedText &&
+                    desc.ShortSummary == givenDesc.ShortSummary);
+
+    private async Task<bool> CheckIdenticalDataAsync<T>(
+        Func<Task<QueryResult<List<T>>>> getListFunc,
+        Func<T, bool> identicalCondition)
+        where T : class
     {
-        var results = await _gateway.GetAllCategories();
-        if (!results.IsSuccess || results.Data == null)
-        {
-            return true;
-        }
+        var results = await getListFunc();
 
-        var categories = results.Data;
-        foreach (var catagory in categories)
-        {
-            if (givenCategory.Name == catagory.Name)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private async Task<bool> IdenticalDataPresent(Entity.Description givenDescription)
-    {
-        var results = await _gateway.GetAllDescriptions();
-        if (!results.IsSuccess || results.Data == null)
-        {
-            return true;
-        }
-
-        var descriptions = results.Data;
-        foreach (var category in descriptions)
-        {
-            if (givenDescription.WeightInGrams == category.WeightInGrams && givenDescription.DetailedText == category.DetailedText && givenDescription.ShortSummary == category.ShortSummary)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return !results.IsSuccess ||
+               results.Data == null ||
+               results.Data.Any(identicalCondition);
     }
 }

@@ -24,22 +24,22 @@ public partial class DescriptonCreator
 
     private Task OnShortSummaryChanged(ChangeEventArgs e)
     {
-        ShortSummary = e.Value?.ToString() ?? string.Empty;
-        return ShortSummaryChanged.InvokeAsync(ShortSummary);
+        this.ShortSummary = e.Value?.ToString() ?? string.Empty;
+        return this.ShortSummaryChanged.InvokeAsync(this.ShortSummary);
     }
 
     private Task OnDetailedTextChanged(ChangeEventArgs e)
     {
-        DetailedText = e.Value?.ToString() ?? string.Empty;
-        return DetailedTextChanged.InvokeAsync(DetailedText);
+        this.DetailedText = e.Value?.ToString() ?? string.Empty;
+        return this.DetailedTextChanged.InvokeAsync(this.DetailedText);
     }
 
     private Task OnWeightChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int weight))
         {
-            WeightInGrams = weight;
-            return WeightInGramsChanged.InvokeAsync(WeightInGrams);
+            this.WeightInGrams = weight;
+            return this.WeightInGramsChanged.InvokeAsync(this.WeightInGrams);
         }
 
         return Task.CompletedTask;
