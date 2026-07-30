@@ -1,0 +1,38 @@
+﻿@inherits BaseComponent
+
+<div class="search-options">
+    <p class="search-options__title">Bitte wähle aus, in welchen Feldern gesucht werden soll:</p>
+
+    <label class="checkbox mb-4">
+        <input type="checkbox" class="checkbox__input" @bind="TempConfig.SearchTitle" />
+        <span class="checkbox__indicator"></span>
+        <span class="checkbox__label fw-bold">Titel des Produkts</span>
+    </label>
+    
+    <div class="checkbox-group">
+        
+        <label class="checkbox mb-2" style="margin-left: -1rem;">
+            <input type="checkbox" class="checkbox__input"
+                   checked="@IsDescriptionAllChecked"
+                   @onchange="OnMasterDescriptionChanged" />
+            <span class="checkbox__indicator @(IsDescriptionIndeterminate ? "checkbox__indicator--indeterminate" : "")"></span>
+            <span class="checkbox__label fw-bold">Beschreibung (Gesamt)</span>
+        </label>
+        
+        <label class="checkbox">
+            <input type="checkbox" class="checkbox__input" @bind="TempConfig.SearchShortDescription" />
+            <span class="checkbox__indicator"></span>
+            <span class="checkbox__label">Kurze Beschreibung</span>
+        </label>
+        
+        <label class="checkbox">
+            <input type="checkbox" class="checkbox__input" @bind="TempConfig.SearchLongDescription" />
+            <span class="checkbox__indicator"></span>
+            <span class="checkbox__label">Lange Beschreibung (Details)</span>
+        </label>
+    </div>
+
+    <div class="search-options__actions mt-4 d-flex justify-content-end">
+        <button class="btn btn-primary" @onclick="SaveConfig">Einstellungen speichern</button>
+    </div>
+</div>

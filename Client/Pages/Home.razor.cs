@@ -11,6 +11,8 @@ public partial class Home
     private Modal _productModal = default!;
     private Component _productComponent = default!;
 
+    private ProductSearchConfiguration _currentSearchConfig = new();
+
     private async Task OpenProductEditorAsync()
     {
         _newProduct = new ProductDto(
@@ -41,5 +43,12 @@ public partial class Home
         {
             await _productComponent.LoadData();
         }
+    }
+
+    private void HandleSearch(ProductSearchConfiguration config)
+    {
+        _currentSearchConfig = config;
+
+        Console.WriteLine($"Suche gestartet: '{config.SearchText}' (Titel: {config.SearchTitle})");
     }
 }

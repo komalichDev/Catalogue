@@ -20,7 +20,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
                     .Include(p => p.Category)
                     .Include(p => p.Description)
                     .ToListAsync(),
-            entities => ProductRepositoryModelConverter.Convert(entities),
+            ProductRepositoryModelConverter.Convert,
             ErrorCodes.FailedConnection,
             "Fehler beim Abrufen der Produkte"
         );
@@ -29,7 +29,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
         => await QueryWrapper(
                     () => _context.Categories
                             .ToListAsync(),
-                    entities => ProductRepositoryModelConverter.Convert(entities),
+                    ProductRepositoryModelConverter.Convert,
                     ErrorCodes.FailedConnection,
                     "Fehler beim Abrufen der Produkte"
         );
@@ -40,7 +40,7 @@ public class ProductDatabaseAccess(IProductDbContext context) : IProductDatabase
                     .Include(p => p.Category)
                     .Include(p => p.Description)
                     .FirstOrDefaultAsync(p => p.Id == id),
-            entity => ProductRepositoryModelConverter.Convert(entity),
+            ProductRepositoryModelConverter.Convert,
             ErrorCodes.FailedConnection,
             "Fehler beim Abrufen des Produkts"
         );

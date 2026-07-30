@@ -189,7 +189,8 @@ public class Interactor : IInteractor
         return Result.Success();
     }
 
-    private async Task<Result> ExecuteIfNotNullAsync<T>(T? data, Func<T, Task<Result>> action, ErrorCodes failureCode) where T : class
+    private async Task<Result> ExecuteIfNotNullAsync<T>(T? data, Func<T, Task<Result>> action, ErrorCodes failureCode) 
+        where T : class
     {
         if (data == null)
         {

@@ -1,0 +1,33 @@
+﻿@inherits BaseComponent
+
+<div class="search-options">
+    <p class="search-options__title">Wähle die Kategorien für die Suche:</p>
+
+    @if (Categories == null) {
+        <p>Lade Kategorien...</p>
+    } else {
+        <div class="checkbox-group">
+            <label class="checkbox mb-3" style="margin-left: -1rem;">
+                <input type="checkbox" class="checkbox__input"
+                       checked="@IsAllChecked"
+                       @onchange="OnMasterChanged" />
+                <span class="checkbox__indicator @(IsIndeterminate ? "checkbox__indicator--indeterminate" : "")"></span>
+                <span class="checkbox__label fw-bold">Alle Kategorien</span>
+            </label>
+
+            @foreach (var cat in Categories) {
+                <label class="checkbox mb-2">
+                    <input type="checkbox" class="checkbox__input"
+                           checked="@TempSelectedIds.Contains(cat.Id.Value)"
+                           @onchange="(e) => OnCategoryChanged(cat.Id.Value, e)" />
+                    <span class="checkbox__indicator"></span>
+                    <span class="checkbox__label">@cat.Name</span>
+                </label>
+            }
+        </div>
+    }
+
+    <div class="search-options__actions mt-4 d-flex justify-content-end">
+        <button class="btn btn-primary" @onclick="SaveConfig">Auswahl speichern</button>
+    </div>
+</div>

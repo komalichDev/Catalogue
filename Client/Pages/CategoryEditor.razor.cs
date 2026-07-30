@@ -86,7 +86,7 @@ public partial class CategoryEditor(IHttpProductApi productApi) : BaseComponent
         {
             _categoryListe = QueryResult<List<Category>>.Success(data);
         }
-        else if (!string.IsNullOrEmpty(_errorMessage))
+        else if (!string.IsNullOrEmpty(ErrorMessage))
         {
             _categoryListe = QueryResult<List<Category>>.Failure(ErrorCodes.FailedConnection);
         }

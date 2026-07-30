@@ -24,7 +24,7 @@ public partial class Component : BaseComponent
         {
             _produktListe = QueryResult<List<ProductDto>>.Success(data);
         }
-        else if (string.IsNullOrEmpty(_errorMessage))
+        else if (string.IsNullOrEmpty(ErrorMessage))
         {
             _produktListe = QueryResult<List<ProductDto>>.Failure(ErrorCodes.NoDataFound);
         }

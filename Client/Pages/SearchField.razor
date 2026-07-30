@@ -1,0 +1,15 @@
+﻿@inherits BaseComponent
+@using BlazorBootstrap
+@using Shared.Models
+
+<div id="SearchField" class="search-container mb-3">
+    <div id="SearchInputField" class="input-group">
+       <input id="SearchValue" type="text" class="form-control" @bind="_searchConfig.SearchText" placeholder="Suchbegriff eingeben..." />
+        
+       <button id="SearchConfiguration" class="btn btn-outline-secondary" @onclick="OpenConfigurationModal">⚙️</button>
+        
+       <button class="btn btn-primary" @onclick="ExecuteSearch">Suche nach Wert</button>
+    </div>
+</div>
+
+<Modal @ref="_configModal" />
