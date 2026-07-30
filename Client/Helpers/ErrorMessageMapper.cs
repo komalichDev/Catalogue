@@ -32,6 +32,36 @@ public static class ErrorMessageMapper
             "da sie noch von Produkten verwendet wird. " +
             "Bitte weisen Sie den Produkten eine andere Kategorie zu um diese Kategorie zu löschen.",
 
+            ErrorCodes.DataDeletionAndCreationOfProductFailded => "Das Produkt konnte nicht gespeichert werden " +
+            "und beim automatischen Löschen der verwaisten Beschreibung trat ein Fehler auf. " +
+            "Bitte informiere den Support.",
+
+            ErrorCodes.CategoryNotFound => "Die ausgewählte Kategorie konnte in der Datenbank nicht gefunden werden.",
+
+            ErrorCodes.ProductAlreadyExists => "Ein Produkt mit genau diesem Namen und Preis existiert bereits.",
+
+            ErrorCodes.DescriptionAlreadyExists => "Eine exakt gleiche Beschreibung existiert bereits in der Datenbank.",
+
+            ErrorCodes.CategoryAlreadyExists => "Eine Kategorie mit diesem Namen existiert bereits. Bitte wähle einen anderen Namen.",
+
+            ErrorCodes.DescriptionCreationFailed => "Die Produktbeschreibung konnte nicht erfolgreich gespeichert werden.",
+
+            ErrorCodes.ProductCreationFailed => "Das Produkt konnte nicht angelegt werden. Bitte versuche es erneut.",
+
+            ErrorCodes.CategoryCreationFailed => "Die neue Kategorie konnte nicht erstellt werden.",
+
+            ErrorCodes.ProductUpdateFailed => "Die Änderungen am Produkt konnten nicht gespeichert werden.",
+
+            ErrorCodes.DescriptionUpdateFailed => "Die Änderungen an der Beschreibung konnten nicht gespeichert werden.",
+
+            ErrorCodes.CategoryUpdateFailed => "Die Änderungen an der Kategorie konnten nicht gespeichert werden.",
+
+            ErrorCodes.ProductDeletionFailed => "Das Produkt konnte leider nicht gelöscht werden.",
+
+            ErrorCodes.DescriptionDeletionFailed => "Die zum Produkt gehörende Beschreibung konnte nicht gelöscht werden.",
+
+            ErrorCodes.CategoryDeletionFailed => "Die Kategorie konnte leider nicht gelöscht werden.",
+
             _ => "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später noch einmal.",
         };
     }

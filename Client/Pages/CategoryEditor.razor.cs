@@ -1,23 +1,17 @@
-﻿using Client.Helpers;
-using Client.Services;
+﻿using Client.Services;
+using Common.Exception;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
 
 namespace Client.Pages;
 
-public partial class CategoryEditor
+public partial class CategoryEditor(IHttpProductApi productApi) : BaseComponent
 {
-    private readonly IHttpProductApi _productApi;
+    private readonly IHttpProductApi _productApi = productApi;
     private QueryResult<List<Category>>? _categoryListe;
-    private string _errorMessage = string.Empty;
     private Category? _selectedCategory = null;
     private string _editName = string.Empty;
-
-    public CategoryEditor(IHttpProductApi productApi)
-    {
-        _productApi = productApi;
-    }
 
     [Inject]
     protected HttpClient Http { get; set; } = default!;
@@ -59,60 +53,42 @@ public partial class CategoryEditor
     private async Task SaveAndClose(Category category)
     {
         var updatedCategory = new Category(category.Id, _editName);
-        Result result;
 
-        if (category.Id.Value == 0)
+        bool success = await ExecuteActionAsync(() =>
+            category.Id.Value == 0 ? _productApi.AddCategory(updatedCategory) : _productApi.UpdateCategory(updatedCategory));
+
+        if (success)
         {
-            result = await _productApi.AddCategory(updatedCategory);
+            await LoadData();
+            _selectedCategory = null;
         }
-        else
-        {
-            result = await _productApi.UpdateCategory(updatedCategory);
-        }
-
-        if (!result.IsSuccess)
-        {
-            _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
-            return;
-        }
-
-        await LoadData();
-
-        _selectedCategory = null;
     }
 
     private async Task DeleteCategory(Category category)
     {
-        var result = await _productApi.DeleteCategory(category.Id);
-        if (!result.IsSuccess)
-        {
-            _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
-        }
-        else
+        bool success = await ExecuteActionAsync(() => _productApi.DeleteCategory(category.Id));
+
+        if (success)
         {
             await LoadData();
-            StateHasChanged();
-        }
-
-        if (_selectedCategory == category)
-        {
-            _selectedCategory = null;
+            if (_selectedCategory == category)
+            {
+                _selectedCategory = null;
+            }
         }
     }
 
     private async Task LoadData()
     {
-        try
+        var data = await ExecuteLoadAsync(() => _productApi.LoadCategories());
+
+        if (data != null)
         {
-            _categoryListe = await _productApi.LoadCategories();
-            if (!_categoryListe.IsSuccess)
-            {
-                _errorMessage = ErrorMessageMapper.ToUserMessage(_categoryListe.ErrorCode);
-            }
+            _categoryListe = QueryResult<List<Category>>.Success(data);
         }
-        catch (Exception ex)
+        else if (!string.IsNullOrEmpty(_errorMessage))
         {
-            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+            _categoryListe = QueryResult<List<Category>>.Failure(ErrorCodes.FailedConnection);
         }
     }
 }

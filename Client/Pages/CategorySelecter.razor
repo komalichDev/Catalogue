@@ -1,4 +1,6 @@
-﻿<div class="custom-select-wrapper">
+﻿@inherits BaseComponent
+
+<div class="custom-select-wrapper">
     @if (Categories != null) {
         <select id="CategorySelecter" name="category" class="modern-select" value="@Id.Value" @onchange="OnCategoryChanged">
             <option value="0" disabled>-- Bitte wähle eine Kategorie --</option>

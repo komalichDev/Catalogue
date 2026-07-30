@@ -1,16 +1,15 @@
 ﻿using BlazorBootstrap;
-using Client.Helpers;
 using Client.Services;
+using Common.Exception;
 using Common.Types;
 using Microsoft.AspNetCore.Components;
 using Shared.Models;
 
 namespace Client.Pages;
 
-public partial class Component
+public partial class Component : BaseComponent
 {
     private QueryResult<List<ProductDto>>? _produktListe;
-    private string _errorMessage = string.Empty;
     private ProductDto? _selectedProduct = null;
     private Modal _productModal = default!;
 
@@ -19,35 +18,26 @@ public partial class Component
 
     public async Task LoadData()
     {
-        try
-        {
-            _produktListe = await ProductApi.LoadProducts();
-            if (!_produktListe.IsSuccess)
-            {
-                _errorMessage = ErrorMessageMapper.ToUserMessage(_produktListe.ErrorCode);
-            }
+        var data = await ExecuteLoadAsync(() => ProductApi.LoadProducts());
 
-            StateHasChanged();
-        }
-        catch (Exception ex)
+        if (data != null)
         {
-            _errorMessage = $"Fehler beim Laden der Daten: {ex.Message}";
+            _produktListe = QueryResult<List<ProductDto>>.Success(data);
+        }
+        else if (string.IsNullOrEmpty(_errorMessage))
+        {
+            _produktListe = QueryResult<List<ProductDto>>.Failure(ErrorCodes.NoDataFound);
         }
     }
 
     protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
+        => await LoadData();
 
     private async Task DeleteProduct(Shared.Models.ProductDto product)
     {
-        var result = await ProductApi.DeleteProduct(product.Id);
-        if (!result.IsSuccess)
-        {
-            _errorMessage = ErrorMessageMapper.ToUserMessage(result.ErrorCode);
-        }
-        else
+        bool success = await ExecuteActionAsync(() => ProductApi.DeleteProduct(product.Id));
+
+        if (success)
         {
             await LoadData();
         }
@@ -56,8 +46,6 @@ public partial class Component
         {
             _selectedProduct = null;
         }
-
-        StateHasChanged();
     }
 
     private async Task ShowDetailedInfo(Shared.Models.ProductDto product)
