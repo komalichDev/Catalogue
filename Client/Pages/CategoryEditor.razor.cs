@@ -8,29 +8,29 @@ namespace Client.Pages;
 
 public partial class CategoryEditor(IHttpProductApi productApi) : BaseComponent
 {
-    private readonly IHttpProductApi productApi = productApi;
-    private QueryResult<List<Category>>? categoryListe;
-    private Category? selectedCategory = null;
-    private string editName = string.Empty;
+    private readonly IHttpProductApi _productApi = productApi;
+    private QueryResult<List<Category>>? _categoryListe;
+    private Category? _selectedCategory = null;
+    private string _editName = string.Empty;
 
     [Inject]
     protected HttpClient Http { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
-        await this.LoadData();
+        await LoadData();
     }
 
     private void ToggleExpand(Category category)
     {
-        if (this.selectedCategory == category)
+        if (_selectedCategory == category)
         {
-            this.selectedCategory = null;
+            _selectedCategory = null;
         }
         else
         {
-            this.selectedCategory = category;
-            this.editName = category.Name;
+            _selectedCategory = category;
+            _editName = category.Name;
         }
     }
 
@@ -38,57 +38,57 @@ public partial class CategoryEditor(IHttpProductApi productApi) : BaseComponent
     {
         var newCategory = new Category(CategoryId.From(0), string.Empty);
 
-        if (this.categoryListe?.Data != null)
+        if (_categoryListe?.Data != null)
         {
-            this.categoryListe.Data.Insert(0, newCategory);
-            this.selectedCategory = newCategory;
-            this.editName = string.Empty;
+            _categoryListe.Data.Insert(0, newCategory);
+            _selectedCategory = newCategory;
+            _editName = string.Empty;
         }
         else
         {
-            this.categoryListe = QueryResult<List<Category>>.Success(new List<Category>());
+            _categoryListe = QueryResult<List<Category>>.Success(new List<Category>());
         }
     }
 
     private async Task SaveAndClose(Category category)
     {
-        var updatedCategory = new Category(category.Id, this.editName);
+        var updatedCategory = new Category(category.Id, _editName);
 
-        bool success = await this.ExecuteActionAsync(() =>
-            category.Id.Value == 0 ? this.productApi.AddCategory(updatedCategory) : this.productApi.UpdateCategory(updatedCategory));
+        bool success = await ExecuteActionAsync(() =>
+            category.Id.Value == 0 ? _productApi.AddCategory(updatedCategory) : _productApi.UpdateCategory(updatedCategory));
 
         if (success)
         {
-            await this.LoadData();
-            this.selectedCategory = null;
+            await LoadData();
+            _selectedCategory = null;
         }
     }
 
     private async Task DeleteCategory(Category category)
     {
-        bool success = await this.ExecuteActionAsync(() => this.productApi.DeleteCategory(category.Id));
+        bool success = await ExecuteActionAsync(() => _productApi.DeleteCategory(category.Id));
 
         if (success)
         {
-            await this.LoadData();
-            if (this.selectedCategory == category)
+            await LoadData();
+            if (_selectedCategory == category)
             {
-                this.selectedCategory = null;
+                _selectedCategory = null;
             }
         }
     }
 
     private async Task LoadData()
     {
-        var data = await this.ExecuteLoadAsync(() => this.productApi.LoadCategories());
+        var data = await ExecuteLoadAsync(() => _productApi.LoadCategories());
 
         if (data != null)
         {
-            this.categoryListe = QueryResult<List<Category>>.Success(data);
+            _categoryListe = QueryResult<List<Category>>.Success(data);
         }
-        else if (!string.IsNullOrEmpty(this._errorMessage))
+        else if (!string.IsNullOrEmpty(_errorMessage))
         {
-            this.categoryListe = QueryResult<List<Category>>.Failure(ErrorCodes.FailedConnection);
+            _categoryListe = QueryResult<List<Category>>.Failure(ErrorCodes.FailedConnection);
         }
     }
 }

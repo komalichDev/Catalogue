@@ -12,14 +12,14 @@ public partial class ErrorPopup : ComponentBase
 
     public void ShowError(string message)
     {
-        this.ErrorMessage = message;
-        this.IsVisible = true;
-        this.StateHasChanged();
+        ErrorMessage = message;
+        IsVisible = true;
+        StateHasChanged();
     }
 
     private void Close()
     {
-        this.IsVisible = false;
-        this.StateHasChanged();
+        IsVisible = false;
+        StateHasChanged();
     }
 }

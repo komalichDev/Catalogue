@@ -8,7 +8,6 @@ public abstract class BaseComponent : ComponentBase
 {
     protected string _errorMessage = string.Empty;
 
-    // Hilfsmethode für das Laden von Daten (GET Requests)
     protected async Task<T?> ExecuteLoadAsync<T>(Func<Task<QueryResult<T>>> apiCall)
         where T : class
     {

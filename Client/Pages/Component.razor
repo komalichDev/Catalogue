@@ -7,12 +7,12 @@
 
 <h3 id="titel">Unsere Produkte</h3>
 
-@if (produktListe == null) {
+@if (_produktListe == null) {
     <p><em>Daten werden vom Server geladen... Bitte warten.</em></p>
 } else {
     <div class="produkt-grid">
-        @if (produktListe.IsSuccess) {
-            @foreach (var produkt in produktListe.Data ?? []) {
+        @if (_produktListe.IsSuccess) {
+            @foreach (var produkt in _produktListe.Data ?? []) {
                 <div @key="produkt.Id" class="produkt-karte" @onclick="() => ShowDetailedInfo(produkt)">
                     <h4>@produkt.Name</h4>
                     <p>Preis: @produkt.Price CHF</p>
@@ -20,9 +20,9 @@
                 </div>
             }
         } else {
-            <ErrorPopup IsVisible="true" ErrorMessage="@ErrorMessageMapper.ToUserMessage(produktListe.ErrorCode)" />
+            <ErrorPopup IsVisible="true" ErrorMessage="@ErrorMessageMapper.ToUserMessage(_produktListe.ErrorCode)" />
         }
     </div>
 }
 
-<Modal @ref="productModal" Size="ModalSize.Large" />
+<Modal @ref="_productModal" Size="ModalSize.Large" />

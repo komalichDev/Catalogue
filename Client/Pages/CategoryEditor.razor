@@ -11,10 +11,10 @@
         <ErrorPopup IsVisible="true" ErrorMessage="@_errorMessage" />
     }
 
-    @if (categoryListe?.Data != null) {
+    @if (_categoryListe?.Data != null) {
         <div class="category-list">
-            @foreach (var category in categoryListe.Data) {
-                bool isExpanded = selectedCategory == category;
+            @foreach (var category in _categoryListe.Data) {
+                bool isExpanded = _selectedCategory == category;
 
                 <div class="category-item @(isExpanded ? "expanded" : "")" @onclick="() => ToggleExpand(category)">
                     @if (!isExpanded) {
@@ -28,7 +28,7 @@
                                 <label for="CategoryName-@category.GetHashCode()">Name der Kategorie:</label>
                                 <input id="CategoryName-@category.GetHashCode()"
                                        type="text"
-                                       @bind="editName"
+                                       @bind="_editName"
                                        @bind:event="oninput"
                                        placeholder="Namen eingeben..." />
                             </div>

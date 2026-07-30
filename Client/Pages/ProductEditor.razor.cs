@@ -8,19 +8,19 @@ namespace Client.Pages;
 
 public partial class ProductEditor(IHttpProductApi productApi) : BaseComponent
 {
-    private readonly IHttpProductApi productApi = productApi;
-    private Modal categoryModal = default!;
-    private string editProductName = string.Empty;
-    private double editProductPrice = 0.0;
+    private readonly IHttpProductApi _productApi = productApi;
+    private Modal _categoryModal = default!;
+    private string _editProductName = string.Empty;
+    private double _editProductPrice = 0.0;
 
-    private CategoryId editCategoryId;
-    private string editShortSummary = string.Empty;
-    private string editDetailedText = string.Empty;
-    private int editWeight = 0;
-    private CategorySelecter categorySelecter = default!;
-    private bool isLoading = false;
+    private CategoryId _editCategoryId;
+    private string _editShortSummary = string.Empty;
+    private string _editDetailedText = string.Empty;
+    private int _editWeight = 0;
+    private CategorySelecter _categorySelecter = default!;
+    private bool _isLoading = false;
 
-    private ProductDto? product;
+    private ProductDto? _product;
 
     [Parameter]
     public ProductId Id { get; set; }
@@ -35,91 +35,91 @@ public partial class ProductEditor(IHttpProductApi productApi) : BaseComponent
     {
         if (Id.Value == 0)
         {
-            this.product = new ProductDto(ProductId.From(0), string.Empty, 0.0, DescriptionId.From(0), null, CategoryId.From(0), null);
-            this.editProductName = string.Empty;
-            this.editProductPrice = 0.0;
+            _product = new ProductDto(ProductId.From(0), string.Empty, 0.0, DescriptionId.From(0), null, CategoryId.From(0), null);
+            _editProductName = string.Empty;
+            _editProductPrice = 0.0;
 
-            this.editCategoryId = CategoryId.From(0);
-            this.editShortSummary = string.Empty;
-            this.editDetailedText = string.Empty;
-            this.editWeight = 0;
+            _editCategoryId = CategoryId.From(0);
+            _editShortSummary = string.Empty;
+            _editDetailedText = string.Empty;
+            _editWeight = 0;
 
-            this.isLoading = false;
+            _isLoading = false;
         }
         else
         {
-            this.isLoading = true;
-            await this.LoadData(this.Id);
-            this.isLoading = false;
+            _isLoading = true;
+            await LoadData(Id);
+            _isLoading = false;
         }
     }
 
     private async Task<bool> SaveData(ProductDto dto)
-        => await this.ExecuteActionAsync(() =>
-        dto.Id == 0 ? this.productApi.AddProduct(dto) : this.productApi.UpdateProduct(dto));
+        => await ExecuteActionAsync(() =>
+        dto.Id == 0 ? _productApi.AddProduct(dto) : _productApi.UpdateProduct(dto));
 
     private async Task OpenCategoryEditorModal()
-        => await this.categoryModal.ShowAsync<CategoryEditor>(title: "Kategorien verwalten");
+        => await _categoryModal.ShowAsync<CategoryEditor>(title: "Kategorien verwalten");
 
     private async Task CancelEdit()
-        => await this.OnClose.InvokeAsync();
+        => await OnClose.InvokeAsync();
 
     private async Task LoadData(ProductId id)
     {
-        var product = await this.ExecuteLoadAsync(() => this.productApi.LoadProduct(id));
+        var product = await ExecuteLoadAsync(() => _productApi.LoadProduct(id));
 
         if (product != null)
         {
-            this.product = product;
-            this.editProductName = this.product.Name;
-            this.editProductPrice = this.product.Price;
-            this.editCategoryId = this.product.CategoryId;
+            _product = product;
+            _editProductName = _product.Name;
+            _editProductPrice = _product.Price;
+            _editCategoryId = _product.CategoryId;
 
-            if (this.product.Description != null)
+            if (_product.Description != null)
             {
-                this.editShortSummary = this.product.Description.ShortSummary;
-                this.editDetailedText = this.product.Description.DetailedText;
-                this.editWeight = this.product.Description.WeightInGrams;
+                _editShortSummary = _product.Description.ShortSummary;
+                _editDetailedText = _product.Description.DetailedText;
+                _editWeight = _product.Description.WeightInGrams;
             }
         }
     }
 
     private async Task HandleSave()
     {
-        if (this.product != null)
+        if (_product != null)
         {
             var newDescription = new Shared.Models.Description(
-                this.product.DescriptionId,
-                this.editShortSummary,
-                this.editDetailedText,
-                this.editWeight);
+                _product.DescriptionId,
+                _editShortSummary,
+                _editDetailedText,
+                _editWeight);
 
-            var updatedProduct = this.product with
+            var updatedProduct = _product with
             {
-                Name = this.editProductName,
-                Price = this.editProductPrice,
-                CategoryId = this.editCategoryId,
+                Name = _editProductName,
+                Price = _editProductPrice,
+                CategoryId = _editCategoryId,
                 Category = null,
                 Description = newDescription,
             };
 
-            bool isSuccess = await this.SaveData(updatedProduct);
+            bool isSuccess = await SaveData(updatedProduct);
 
             if (isSuccess)
             {
-                await this.OnClose.InvokeAsync();
+                await OnClose.InvokeAsync();
             }
         }
     }
 
     private void HandleCategoryChanged(CategoryId newId)
-        => this.editCategoryId = newId;
+        => _editCategoryId = newId;
 
     private async Task OnCategoryModalClosed()
     {
-        if (this.categorySelecter != null)
+        if (_categorySelecter != null)
         {
-            await this.categorySelecter.LoadData();
+            await _categorySelecter.LoadData();
         }
     }
 }

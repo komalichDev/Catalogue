@@ -7,7 +7,7 @@ namespace Client.Pages;
 
 public partial class CategorySelecter(IHttpProductApi productApi) : BaseComponent
 {
-    private readonly IHttpProductApi productApi = productApi;
+    private readonly IHttpProductApi _productApi = productApi;
 
     [Parameter]
     public CategoryId Id { get; set; }
@@ -22,22 +22,22 @@ public partial class CategorySelecter(IHttpProductApi productApi) : BaseComponen
 
     public async Task LoadData()
     {
-        var data = await this.ExecuteLoadAsync(() => this.productApi.LoadCategories());
+        var data = await ExecuteLoadAsync(() => _productApi.LoadCategories());
         if (data != null)
         {
-            this.Categories = data;
+            Categories = data;
         }
     }
 
     protected override async Task OnInitializedAsync()
-        => await this.LoadData();
+        => await LoadData();
 
     private async Task OnCategoryChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int newId))
         {
             var categoryId = CategoryId.From(newId);
-            await this.IdChanged.InvokeAsync(categoryId);
+            await IdChanged.InvokeAsync(categoryId);
         }
     }
 }

@@ -9,64 +9,64 @@ namespace Client.Pages;
 
 public partial class Component : BaseComponent
 {
-    private QueryResult<List<ProductDto>>? produktListe;
-    private ProductDto? selectedProduct = null;
-    private Modal productModal = default!;
+    private QueryResult<List<ProductDto>>? _produktListe;
+    private ProductDto? _selectedProduct = null;
+    private Modal _productModal = default!;
 
     [Inject]
     private IHttpProductApi ProductApi { get; set; } = null!;
 
     public async Task LoadData()
     {
-        var data = await this.ExecuteLoadAsync(() => this.ProductApi.LoadProducts());
+        var data = await ExecuteLoadAsync(() => ProductApi.LoadProducts());
 
         if (data != null)
         {
-            this.produktListe = QueryResult<List<ProductDto>>.Success(data);
+            _produktListe = QueryResult<List<ProductDto>>.Success(data);
         }
-        else if (string.IsNullOrEmpty(this._errorMessage))
+        else if (string.IsNullOrEmpty(_errorMessage))
         {
-            this.produktListe = QueryResult<List<ProductDto>>.Failure(ErrorCodes.NoDataFound);
+            _produktListe = QueryResult<List<ProductDto>>.Failure(ErrorCodes.NoDataFound);
         }
     }
 
     protected override async Task OnInitializedAsync()
-        => await this.LoadData();
+        => await LoadData();
 
     private async Task DeleteProduct(Shared.Models.ProductDto product)
     {
-        bool success = await this.ExecuteActionAsync(() => this.ProductApi.DeleteProduct(product.Id));
+        bool success = await ExecuteActionAsync(() => ProductApi.DeleteProduct(product.Id));
 
         if (success)
         {
-            await this.LoadData();
+            await LoadData();
         }
 
-        if (this.selectedProduct == product)
+        if (_selectedProduct == product)
         {
-            this.selectedProduct = null;
+            _selectedProduct = null;
         }
     }
 
     private async Task ShowDetailedInfo(Shared.Models.ProductDto product)
     {
-        this.selectedProduct = product;
+        _selectedProduct = product;
 
         var parameters = new Dictionary<string, object>
         {
-            { "Id", this.selectedProduct.Id },
-            { "OnClose", EventCallback.Factory.Create(this, this.HandleEditorClosed) },
+            { "Id", _selectedProduct.Id },
+            { "OnClose", EventCallback.Factory.Create(this, HandleEditorClosed) },
         };
 
-        await this.productModal.ShowAsync<ProductEditor>(
+        await _productModal.ShowAsync<ProductEditor>(
             title: "Produkt bearbeiten",
             parameters: parameters);
     }
 
     private async void HandleEditorClosed()
     {
-        await this.productModal.HideAsync();
-        this.selectedProduct = null;
-        await this.LoadData();
+        await _productModal.HideAsync();
+        _selectedProduct = null;
+        await LoadData();
     }
 }
