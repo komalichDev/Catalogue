@@ -1,0 +1,21 @@
+﻿@inherits BaseComponent
+
+<div class="search-options">
+    <p class="search-options__title fw-bold">@Title</p>
+
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="form-group flex-grow-1">
+            <label>Von (@Unit)</label>
+            <input type="number" class="form-control" @bind="_tempMin" placeholder="Min" />
+        </div>
+        <span class="mt-4">-</span>
+        <div class="form-group flex-grow-1">
+            <label>Bis (@Unit)</label>
+            <input type="number" class="form-control" @bind="_tempMax" placeholder="Max" />
+        </div>
+    </div>
+
+    <div class="search-options__actions mt-4 d-flex justify-content-end">
+        <button class="btn btn-primary" @onclick="SaveConfig">Werte speichern</button>
+    </div>
+</div>
