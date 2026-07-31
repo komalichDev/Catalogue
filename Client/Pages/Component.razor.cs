@@ -35,6 +35,8 @@ public partial class Component : BaseComponent
         {
             _produktListe = QueryResult<List<ProductDto>>.Failure(ErrorCodes.NoDataFound);
         }
+
+        StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
