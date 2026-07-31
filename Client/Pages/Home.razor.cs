@@ -52,18 +52,9 @@ public partial class Home
     private async Task HandleSearch(ProductSearchConfiguration config)
     {
         _currentSearchConfig.SearchText = config.SearchText;
-        if (!string.IsNullOrEmpty(config.SearchText))
-        {
-            _currentSearchConfig.SearchTitle = true;
-            _currentSearchConfig.SearchShortDescription = true;
-            _currentSearchConfig.SearchLongDescription = true;
-        }
-        else
-        {
-            _currentSearchConfig.SearchTitle = false;
-            _currentSearchConfig.SearchShortDescription = false;
-            _currentSearchConfig.SearchLongDescription = false;
-        }
+        _currentSearchConfig.SearchTitle = !string.IsNullOrEmpty(config.SearchText) ? config.SearchTitle : false;
+        _currentSearchConfig.SearchShortDescription = !string.IsNullOrEmpty(config.SearchText) ? config.SearchShortDescription : false;
+        _currentSearchConfig.SearchLongDescription = !string.IsNullOrEmpty(config.SearchText) ? config.SearchLongDescription : false;
 
         var jsonConfig = JsonSerializer.Serialize(_currentSearchConfig, new JsonSerializerOptions { WriteIndented = true });
         Console.WriteLine($"--- Suche gestartet ---\n{jsonConfig}");
