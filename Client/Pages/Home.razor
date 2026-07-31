@@ -12,7 +12,42 @@
         </button>
     </div>
 
+    <SearchField OnSearch="HandleSearch" />
+
+    <div class="search-filters d-flex flex-wrap gap-3 mb-4">
+        
+        <div class="filter-chip @(_currentSearchConfig.SearchByCategory ? "active" : "")">
+            <button class="filter-chip__toggle" @onclick="ToggleCategorySearch">
+                <span class="filter-chip__icon">@(_currentSearchConfig.SearchByCategory ? "✓" : "+")</span>
+                Kategorie
+            </button>
+            <div class="filter-chip__divider"></div>
+            <button class="filter-chip__settings" @onclick="OpenCategorySettings" title="Einstellungen">⚙️</button>
+        </div>                                 
+
+        <div class="filter-chip @(_currentSearchConfig.SearchByPrice ? "active" : "")">
+            <button class="filter-chip__toggle" @onclick="TogglePriceSearch">
+                <span class="filter-chip__icon">@(_currentSearchConfig.SearchByPrice ? "✓" : "+")</span>
+                Preis
+            </button>
+            <div class="filter-chip__divider"></div>
+            <button class="filter-chip__settings" @onclick="OpenPriceSettings" title="Einstellungen">⚙️</button>
+        </div>
+
+        <div class="filter-chip @(_currentSearchConfig.SearchByWeight ? "active" : "")">
+            <button class="filter-chip__toggle" @onclick="ToggleWeightSearch">
+                <span class="filter-chip__icon">@(_currentSearchConfig.SearchByWeight ? "✓" : "+")</span>
+                Gewicht
+            </button>
+            <div class="filter-chip__divider"></div>
+            <button class="filter-chip__settings" @onclick="OpenWeightSettings" title="Einstellungen">⚙️</button>
+        </div>
+
+    </div>
+
     <Component @ref="_productComponent"/>
 </div>
 
 <Modal @ref="_productModal" Size="ModalSize.Large" />
+<Modal @ref="_categoryModal" Size="ModalSize.Large" />
+<Modal @ref="_rangeModal" Size="ModalSize.Large" />

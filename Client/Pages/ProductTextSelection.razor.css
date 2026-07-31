@@ -1,0 +1,112 @@
+﻿.search-options {
+    padding: 0.5rem;
+}
+
+.search-options__title {
+    color: #495057;
+    margin-bottom: 1.5rem;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-left: 0.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid #e9ecef;
+}
+
+.checkbox-group__title {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #212529;
+    margin-left: -1rem;
+}
+
+.checkbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+}
+
+.checkbox__input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkbox__indicator {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    background-color: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.checkbox__label {
+    font-size: 1rem;
+    color: #495057;
+    transition: color 0.2s ease;
+}
+
+.checkbox:hover .checkbox__indicator {
+    border-color: #0d6efd;
+    background-color: #f1f7ff;
+}
+
+.checkbox__input:checked ~ .checkbox__indicator {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.checkbox__input:checked ~ .checkbox__label {
+    color: #212529;
+}
+
+.checkbox__input:focus-visible ~ .checkbox__indicator {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+.checkbox__indicator::after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox__input:checked ~ .checkbox__indicator::after {
+    display: block;
+}
+
+.checkbox__indicator--indeterminate {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+    .checkbox__indicator--indeterminate::after {
+        content: "";
+        position: absolute;
+        display: block;
+        left: 5px;
+        top: 8px;
+        width: 8px;
+        height: 0;
+        border-bottom: 2px solid white;
+        border-right: none;
+        transform: none;
+    }

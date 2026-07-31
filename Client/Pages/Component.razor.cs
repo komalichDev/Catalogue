@@ -12,19 +12,26 @@ public partial class Component : BaseComponent
     private QueryResult<List<ProductDto>>? _produktListe;
     private ProductDto? _selectedProduct = null;
     private Modal _productModal = default!;
+    private ProductSearchConfiguration? _currentFilter = null;
 
     [Inject]
     private IHttpProductApi ProductApi { get; set; } = null!;
 
+    public async Task ApplySearchAsync(ProductSearchConfiguration filter)
+    {
+        _currentFilter = filter;
+        await LoadData();
+    }
+
     public async Task LoadData()
     {
-        var data = await ExecuteLoadAsync(() => ProductApi.LoadProducts());
+        var data = await ExecuteLoadAsync(() => ProductApi.LoadProducts(_currentFilter));
 
         if (data != null)
         {
             _produktListe = QueryResult<List<ProductDto>>.Success(data);
         }
-        else if (string.IsNullOrEmpty(_errorMessage))
+        else if (string.IsNullOrEmpty(ErrorMessage))
         {
             _produktListe = QueryResult<List<ProductDto>>.Failure(ErrorCodes.NoDataFound);
         }

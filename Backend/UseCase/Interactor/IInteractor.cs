@@ -5,7 +5,7 @@ namespace Backend.UseCase.Interactor;
 
 public interface IInteractor
 {
-    public Task<QueryResult<List<ProductDto>>> GetAllProducts();
+    public Task<QueryResult<List<ProductDto>>> GetAllProducts(Shared.Models.ProductSearchConfiguration filter);
 
     public Task<QueryResult<ProductDto>> GetProductById(ProductId id);
 

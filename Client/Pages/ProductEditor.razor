@@ -11,9 +11,9 @@
             <span class="mt-3 text-muted">Lade aktuelle Produktdaten...</span>
         </div>
     } 
-    else if (!string.IsNullOrEmpty(_errorMessage))
+    else if (!string.IsNullOrEmpty(ErrorMessage))
     {
-        <ErrorPopup IsVisible="true" ErrorMessage="@_errorMessage" />
+        <ErrorPopup IsVisible="true" ErrorMessage="@ErrorMessage" />
     }
     else if (_product != null)
     {

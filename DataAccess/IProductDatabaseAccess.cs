@@ -5,7 +5,7 @@ namespace DatabaseAccess;
 
 public interface IProductDatabaseAccess
 {
-    public Task<QueryResult<RepositoryModel.ProductRepositoryModel>> GetAllProducts();
+    public Task<QueryResult<RepositoryModel.ProductRepositoryModel>> GetAllProducts(ProductFilter filter);
     public Task<QueryResult<RepositoryModel.Product>> GetProduct(ProductId id);
 
     public Task<QueryResult<List<RepositoryModel.Category>>> GetAllCategories();

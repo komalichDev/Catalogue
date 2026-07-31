@@ -5,7 +5,7 @@ namespace Client.Services;
 
 public interface IHttpProductApi
 {
-    Task<QueryResult<List<ProductDto>>> LoadProducts();
+    Task<QueryResult<List<ProductDto>>> LoadProducts(ProductSearchConfiguration? filter = null);
 
     Task<QueryResult<ProductDto>> LoadProduct(ProductId id);
 

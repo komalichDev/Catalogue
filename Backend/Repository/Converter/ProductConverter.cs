@@ -44,4 +44,7 @@ public class ProductConverter
 
     public static List<Entity.Description> Convert(List<Description> descriptions)
         => descriptions.Adapt<List<Entity.Description>>();
+
+    public static DatabaseAccess.RepositoryModel.ProductFilter Convert(Entity.ProductFilter filter)
+        => filter.Adapt<DatabaseAccess.RepositoryModel.ProductFilter>();
 }

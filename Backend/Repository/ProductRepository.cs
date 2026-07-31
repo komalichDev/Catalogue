@@ -25,9 +25,9 @@ public class ProductRepository : IProductGateway
             data => ProductConverter.Convert(data),
             new List<DatabaseAccess.RepositoryModel.Description>());
 
-    public async Task<QueryResult<List<Product>>> GetAllProducts()
+    public async Task<QueryResult<List<Product>>> GetAllProducts(ProductFilter filter)
         => await ExecuteQueryAsync(
-            () => _databaseAccess.GetAllProducts(),
+            () => _databaseAccess.GetAllProducts(ProductConverter.Convert(filter)),
             data => ProductConverter.Convert(data),
             new DatabaseAccess.RepositoryModel.ProductRepositoryModel(new List<DatabaseAccess.RepositoryModel.Product>()));
 

@@ -6,7 +6,9 @@ namespace Client.Pages;
 
 public abstract class BaseComponent : ComponentBase
 {
-    protected string _errorMessage = string.Empty;
+    private string _errorMessage = string.Empty;
+
+    public string ErrorMessage => _errorMessage;
 
     protected async Task<T?> ExecuteLoadAsync<T>(Func<Task<QueryResult<T>>> apiCall)
         where T : class

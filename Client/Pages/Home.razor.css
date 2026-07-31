@@ -51,3 +51,72 @@
     padding-bottom: 20px;
     border-bottom: 2px dashed #ccc;
 }
+
+.filter-chip {
+    display: inline-flex;
+    align-items: stretch;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 30px; /* Macht sie schön abgerundet */
+    overflow: hidden;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+    .filter-chip.active {
+        background-color: #e7f1ff; /* Helles Blau */
+        border-color: #0d6efd;
+    }
+
+.filter-chip__toggle,
+.filter-chip__settings {
+    background: none;
+    border: none;
+    color: #495057;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.filter-chip__toggle {
+    padding: 0.4rem 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-chip__settings {
+    padding: 0.4rem 0.8rem;
+    font-size: 1.1rem;
+}
+
+    .filter-chip__toggle:hover,
+    .filter-chip__settings:hover {
+        background-color: rgba(0,0,0,0.05);
+    }
+
+.filter-chip.active .filter-chip__toggle,
+.filter-chip.active .filter-chip__settings {
+    color: #0a58ca;
+}
+
+    .filter-chip.active .filter-chip__toggle:hover,
+    .filter-chip.active .filter-chip__settings:hover {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+
+.filter-chip__icon {
+    font-weight: bold;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.filter-chip__divider {
+    width: 1px;
+    background-color: #dee2e6;
+    transition: background-color 0.2s;
+}
+
+.filter-chip.active .filter-chip__divider {
+    background-color: #9ec5fe;
+}

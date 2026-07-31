@@ -7,8 +7,8 @@
         <button id="AddCategory" class="btn-add-global" @onclick="AddNewCategory">+</button>
     </div>
 
-    @if (!string.IsNullOrEmpty(_errorMessage)) {
-        <ErrorPopup IsVisible="true" ErrorMessage="@_errorMessage" />
+    @if (!string.IsNullOrEmpty(ErrorMessage)) {
+        <ErrorPopup IsVisible="true" ErrorMessage="@ErrorMessage" />
     }
 
     @if (_categoryListe?.Data != null) {
