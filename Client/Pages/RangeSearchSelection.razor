@@ -1,21 +1,32 @@
 ﻿@inherits BaseComponent
 
-<div class="search-options">
-    <p class="search-options__title fw-bold">@Title</p>
+<div class="range-modal">
+    <p class="text-muted mb-4">Bitte gib den gewünschten Suchbereich an. Leere Felder werden nicht eingeschränkt.</p>
 
-    <div class="d-flex align-items-center gap-3 mb-3">
-        <div class="form-group flex-grow-1">
-            <label>Von (@Unit)</label>
-            <input type="number" class="form-control" @bind="_tempMin" placeholder="Min" />
+    <div class="range-inputs d-flex align-items-center gap-3">
+        <div class="flex-grow-1">
+            <label class="fw-bold mb-2 text-primary">Minimum</label>
+            <div class="input-group input-group-lg">
+                <input type="number" class="form-control" @bind="_tempMin" placeholder=@DefaultMin />
+                <span class="input-group-text bg-light text-muted">@Unit</span>
+            </div>
         </div>
-        <span class="mt-4">-</span>
-        <div class="form-group flex-grow-1">
-            <label>Bis (@Unit)</label>
-            <input type="number" class="form-control" @bind="_tempMax" placeholder="Max" />
+        
+        <div class="mt-4 text-muted fw-bold">
+            <span style="font-size: 1.5rem;">-</span>
+        </div>
+        
+        <div class="flex-grow-1">
+            <label class="fw-bold mb-2 text-primary">Maximum</label>
+            <div class="input-group input-group-lg">
+                <input type="number" class="form-control" @bind="_tempMax" placeholder=@DefaultMax />
+                <span class="input-group-text bg-light text-muted">@Unit</span>
+            </div>
         </div>
     </div>
 
-    <div class="search-options__actions mt-4 d-flex justify-content-end">
-        <button class="btn btn-primary" @onclick="SaveConfig">Werte speichern</button>
+    <div class="mt-5 d-flex justify-content-end gap-2">
+        <button class="btn btn-outline-secondary" @onclick="() => { _tempMin = DefaultMin; _tempMax = DefaultMax; }">Zurücksetzen</button>
+        <button class="btn btn-primary px-4" @onclick="SaveConfig">Speichern</button>
     </div>
 </div>

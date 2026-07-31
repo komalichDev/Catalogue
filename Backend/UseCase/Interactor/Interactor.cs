@@ -1,4 +1,5 @@
-﻿using Backend.UseCase.Interactor.Converter;
+﻿using Backend.Entity;
+using Backend.UseCase.Interactor.Converter;
 using Common.Exception;
 using Common.Types;
 using Shared.Models;
@@ -8,13 +9,14 @@ namespace Backend.UseCase.Interactor;
 public class Interactor : IInteractor
 {
     private IProductGateway _gateway;
+    private ProductFilter _filter = new ProductFilter();
 
     public Interactor(IProductGateway gateway)
         => _gateway = gateway;
 
-    public async Task<QueryResult<List<ProductDto>>> GetAllProducts()
+    public async Task<QueryResult<List<ProductDto>>> GetAllProducts(Shared.Models.ProductSearchConfiguration filter)
             => await ExecuteQueryAsync(
-                () => _gateway.GetAllProducts(),
+                () => _gateway.GetAllProducts(ProductDtoConverter.Convert(filter)),
                 data => ProductDtoConverter.Convert(data),
                 new List<Entity.Product>());
 
@@ -23,22 +25,22 @@ public class Interactor : IInteractor
             () => _gateway.GetProductById(id),
             data => ProductDtoConverter.Convert(data));
 
-    public async Task<QueryResult<Description>> GetDescriptionById(DescriptionId id)
+    public async Task<QueryResult<Shared.Models.Description>> GetDescriptionById(DescriptionId id)
         => await ExecuteQueryAsync(
             () => _gateway.GetDescriptionById(id),
             data => ProductDtoConverter.Convert(data));
 
-    public async Task<QueryResult<Category>> GetCategoryById(CategoryId id)
+    public async Task<QueryResult<Shared.Models.Category>> GetCategoryById(CategoryId id)
         => await ExecuteQueryAsync(
             () => _gateway.GetCategoryById(id),
             data => ProductDtoConverter.Convert(data));
 
-    public async Task<QueryResult<List<Category>>> GetAllCategories()
+    public async Task<QueryResult<List<Shared.Models.Category>>> GetAllCategories()
         => await ExecuteQueryAsync(
             () => _gateway.GetAllCategories(),
             data => ProductDtoConverter.Convert(data));
 
-    public async Task<QueryResult<List<Description>>> GetAllDescriptions()
+    public async Task<QueryResult<List<Shared.Models.Description>>> GetAllDescriptions()
         => await ExecuteQueryAsync(
             () => _gateway.GetAllDescriptions(),
             data => ProductDtoConverter.Convert(data));
@@ -68,7 +70,7 @@ public class Interactor : IInteractor
         return await SaveProductWithRollbackAsync(newProduct, addedDescription?.Id);
     }
 
-    public async Task<Result> CreateCategory(Category category)
+    public async Task<Result> CreateCategory(Shared.Models.Category category)
             => (await _gateway.GetCategoryById(category.Id)).IsSuccess
                 ? Result.Success()
                 : await ExecuteSequentialAsync(
@@ -81,7 +83,7 @@ public class Interactor : IInteractor
                 () => ExecuteIfNotNullAsync(product?.Description, d => _gateway.UpdateDescription(ProductDtoConverter.Convert(d)), ErrorCodes.DescriptionUpdateFailed),
                 () => ExecuteIfNotNullAsync(product, p => _gateway.UpdateProduct(ProductDtoConverter.Convert(p)), ErrorCodes.ProductUpdateFailed));
 
-    public async Task<Result> UpdateCategory(Category category)
+    public async Task<Result> UpdateCategory(Shared.Models.Category category)
             => await ExecuteIfNotNullAsync(category, c => _gateway.UpdateCategory(ProductDtoConverter.Convert(c)), ErrorCodes.CategoryUpdateFailed);
 
     public async Task<Result> DeleteProduct(ProductId productId)
@@ -100,7 +102,7 @@ public class Interactor : IInteractor
 
     private async Task<bool> IsCategoryInUse(CategoryId id)
     {
-        var products = await _gateway.GetAllProducts();
+        var products = await _gateway.GetAllProducts(_filter);
         return products.IsSuccess && products.Data?.Any(product => product.CategoryId == id) == true;
     }
 
@@ -140,7 +142,7 @@ public class Interactor : IInteractor
             () => ExecuteIfNotNullAsync(product.Description, d => _gateway.CreateDescription(ProductDtoConverter.Convert(d)), ErrorCodes.DescriptionCreationFailed));
     }
 
-    private Entity.Product BuildProductEntity(ProductDto product, Description? addedDescription, Entity.Category category)
+    private Entity.Product BuildProductEntity(ProductDto product, Shared.Models.Description? addedDescription, Entity.Category category)
     {
         var descId = addedDescription != null ? DescriptionId.From(addedDescription.Id.Value) : DescriptionId.From(0);
         var convertedDesc = addedDescription != null ? ProductDtoConverter.Convert(addedDescription) : null;
@@ -207,7 +209,7 @@ public class Interactor : IInteractor
         return result.IsSuccess ? Result.Success() : Result.Failure(failureCode);
     }
 
-    private async Task<Description?> RetrieveNewlyCreatedDescriptionAsync(Shared.Models.Description? originalDescription)
+    private async Task<Shared.Models.Description?> RetrieveNewlyCreatedDescriptionAsync(Shared.Models.Description? originalDescription)
     {
         if (originalDescription == null)
         {
@@ -231,7 +233,7 @@ public class Interactor : IInteractor
 
     private async Task<bool> IdenticalDataPresent(Entity.Product givenProduct)
             => await CheckIdenticalDataAsync(
-                () => _gateway.GetAllProducts(),
+                () => _gateway.GetAllProducts(_filter),
                 product => product.Name == givenProduct.Name && product.Price == givenProduct.Price);
 
     private async Task<bool> IdenticalDataPresent(Entity.Category givenCategory)

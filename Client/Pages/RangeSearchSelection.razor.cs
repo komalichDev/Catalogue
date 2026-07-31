@@ -14,6 +14,12 @@ public partial class RangeSearchSelection : BaseComponent
     public string Unit { get; set; } = string.Empty;
 
     [Parameter]
+    public double DefaultMin { get; set; } = 0;
+
+    [Parameter]
+    public double DefaultMax { get; set; } = 100;
+
+    [Parameter]
     public double? MinValue { get; set; }
 
     [Parameter]

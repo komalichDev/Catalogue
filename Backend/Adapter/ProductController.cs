@@ -17,9 +17,9 @@ public class ProductController : ControllerBase
         => _interactor = interactor;
 
     [HttpGet]
-    public async Task<QueryResult<List<ProductDto>>> GetProducts()
+    public async Task<QueryResult<List<ProductDto>>> GetProducts([FromQuery] ProductSearchConfiguration filter)
          => await ExecuteQueryAsync(
-             () => _interactor.GetAllProducts(),
+             () => _interactor.GetAllProducts(filter),
              data => data,
              new List<ProductDto>());
 

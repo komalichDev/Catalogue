@@ -1,2 +1,29 @@
-﻿body {
+﻿.range-modal {
+    padding: 0.5rem;
 }
+
+    .range-modal .form-control {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .range-modal .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+
+    .range-modal .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 0 8px 8px 0;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .range-modal .input-group .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }

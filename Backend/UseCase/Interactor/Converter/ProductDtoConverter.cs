@@ -31,4 +31,7 @@ public class ProductDtoConverter
 
     public static Description Convert(Entity.Description description)
         => description.Adapt<Description>();
+
+    public static Entity.ProductFilter Convert(Shared.Models.ProductSearchConfiguration configuration)
+        => configuration.Adapt<Entity.ProductFilter>();
 }
